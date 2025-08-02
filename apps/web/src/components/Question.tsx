@@ -7,10 +7,13 @@ import {
   Input,
   Divider,
   InputGroup,
+  InputRightElement,
+  Flex,
   Textarea,
   useBreakpointValue,
 } from '@chakra-ui/react'
-import { useEffect } from 'react'
+import { CheckIcon } from '@chakra-ui/icons'
+import { useEffect, useState } from 'react'
 import { useQuizStore } from '@/store/quiz'
 
 interface QuestionProps {
@@ -35,12 +38,12 @@ export function Question({ number, question, options, correctIndex }: QuestionPr
     setQuestions(updatedQuestions)
   }
 
-  const updateOption = (optionIndex: number, newValue: string) => {
+  const updateOption = (index: number, value: string) => {
     if (!questions) return
 
     const updatedQuestions = [...questions]
     const updatedOptions = [...updatedQuestions[number - 1].options]
-    updatedOptions[optionIndex] = newValue
+    updatedOptions[index] = value
     
     updatedQuestions[number - 1] = {
       ...updatedQuestions[number - 1],
@@ -168,12 +171,44 @@ export function Question({ number, question, options, correctIndex }: QuestionPr
                       bg: '#F4F2FF'
                     }}
                     px="20px"
+                    pr={!isMobile && index === correctIndex ? "150px" : "20px"}
                     fontSize="16px"
                     fontWeight="500"
                     color="#3E3C46"
                     _placeholder={{ color: "#3E3C46" }}
                     style={{ fontFamily: 'var(--font-inter)' }}
                   />
+                  {!isMobile && index === correctIndex && (
+                    <InputRightElement width="auto" pr={2} height="50px">
+                      <Flex
+                        boxSizing="border-box"
+                        display="flex"
+                        flexDirection="row"
+                        justifyContent="center"
+                        alignItems="center"
+                        padding="8px 10px"
+                        gap="6px"
+                        width="132px"
+                        height="32px"
+                        bg="#ECFDF1"
+                        border="1px solid #ABEFC6"
+                        borderRadius="8px"
+                        flexGrow={0}
+                        margin="0 auto"
+                      >
+                        <CheckIcon boxSize={3} color="#28AD75" />
+                        <Text
+                          color="#28AD75"
+                          fontSize="12px"
+                          fontWeight="500"
+                          lineHeight="normal"
+                          style={{ fontFamily: 'var(--font-inter)' }}
+                        >
+                          Correct Answer
+                        </Text>
+                      </Flex>
+                    </InputRightElement>
+                  )}
                 </InputGroup>
               </Box>
             </Box>
