@@ -1,111 +1,128 @@
 # AI-Powered PDF Quiz Generator
 
-This project is a web application that allows users to upload PDF documents and generate quizzes using AI. The application is built with Next.js for the frontend and FastAPI for the backend.
+This project is a web application that generates quizzes from PDF documents using AI. It consists of a Next.js frontend and a FastAPI backend.
 
 ## Project Structure
 
 ```
 .
-├── apps
-│   ├── api                 # FastAPI backend
-│   │   ├── src
-│   │   │   ├── api        # API routes
-│   │   │   ├── core       # Core configuration
-│   │   │   ├── models     # Data models
-│   │   │   ├── services   # Business logic
-│   │   │   └── utils      # Utility functions
-│   │   └── venv           # Python virtual environment
-│   └── web                # Next.js frontend
-│       ├── src
-│       │   ├── app        # Next.js App Router
-│       │   ├── components # React components
-│       │   ├── hooks      # Custom React hooks
-│       │   ├── services   # API services
-│       │   ├── store      # Zustand store
-│       │   ├── types      # TypeScript types
-│       │   └── utils      # Utility functions
-│       └── public         # Static files
-└── packages              # Shared packages
-    └── shared            # Shared utilities and types
+├── apps/
+│   ├── web/          # Next.js frontend application
+│   └── api/          # FastAPI backend application
+└── README.md
 ```
 
 ## Prerequisites
 
 - Node.js 18+
 - Python 3.8+
-- OpenAI API key
+- pnpm (for package management)
 
 ## Getting Started
 
 1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   cd pdf-quiz-generator
-   ```
+```bash
+git clone <repository-url>
+cd take-home-project-ai-powered-pdf-quiz-generatorreact
+```
 
-2. Set up the backend:
-   ```bash
-   cd apps/api
-   python -m venv venv
-   source venv/bin/activate  # On Windows: .\venv\Scripts\activate
-   pip install -r requirements.txt
-   cp .env.example .env  # Add your OpenAI API key
-   ```
+2. Install dependencies:
+```bash
+# Install frontend dependencies
+cd apps/web
+pnpm install
 
-3. Set up the frontend:
-   ```bash
-   cd apps/web
-   npm install
-   cp .env.example .env.local  # Configure environment variables
-   ```
+# Install backend dependencies
+cd ../api
+python -m venv venv
+source venv/bin/activate  # On Windows use: venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+3. Set up environment variables:
+
+Frontend (apps/web/.env.local):
+```env
+NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
+```
+
+Backend (apps/api/.env):
+```env
+OPENAI_API_KEY=your_openai_api_key
+```
 
 4. Start the development servers:
 
-   Backend:
-   ```bash
-   cd apps/api
-   uvicorn src.main:app --reload
-   ```
+Frontend:
+```bash
+cd apps/web
+pnpm dev
+```
 
-   Frontend:
-   ```bash
-   cd apps/web
-   npm run dev
-   ```
+Backend:
+```bash
+cd apps/api
+uvicorn main:app --reload --host 0.0.0.0
+```
 
-5. Open [http://localhost:3000](http://localhost:3000) in your browser.
+The application will be available at:
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:8000
 
 ## Features
 
-- PDF upload and text extraction
-- AI-powered question generation using OpenAI
-- Question editing capabilities
-- Interactive quiz taking
-- Immediate feedback and scoring
-- Responsive design
+- Upload PDF documents (max 10MB)
+- Extract text using PyMuPDF
+- Generate quizzes using OpenAI's GPT model
+- Interactive quiz interface
+- Loading animations with gradient effects
+- Mobile-responsive design
 
 ## Tech Stack
 
-- **Frontend**:
-  - Next.js (App Router)
-  - React Query for data fetching
-  - Zustand for state management
-  - Tailwind CSS for styling
-  - TypeScript
+### Frontend
+- Next.js 14
+- React
+- TypeScript
+- Tailwind CSS
+- Framer Motion (for animations)
+- React Query
+- Zustand (state management)
 
-- **Backend**:
-  - FastAPI
-  - OpenAI API
-  - Python PDF processing
+### Backend
+- FastAPI
+- PyMuPDF (for PDF processing)
+- OpenAI API
+- Python-dotenv
+- CORS middleware
+
+## Development
+
+### Frontend Scripts
+
+```bash
+pnpm dev        # Start development server
+pnpm build      # Build for production
+pnpm start      # Start production server
+pnpm lint       # Run ESLint
+```
+
+### Backend Scripts
+
+```bash
+uvicorn main:app --reload --host 0.0.0.0  # Start development server
+```
+
+## API Endpoints
+
+- `POST /generate-quiz`
+  - Accepts PDF file upload
+  - Returns generated quiz questions and metadata
 
 ## Contributing
 
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
+2. Create your feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
