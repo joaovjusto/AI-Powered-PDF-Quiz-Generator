@@ -6,7 +6,7 @@ import { Logo } from '@/components/Logo'
 export default function Home() {
   return (
     <div className="w-full">
-      <div className="max-w-[280px] sm:max-w-xl mx-auto px-4 py-4 sm:py-8">
+      <div className="max-w-[280px] sm:max-w-xl mx-auto px-4">
         <div className="flex flex-col items-center">
           <Logo />
           <p 

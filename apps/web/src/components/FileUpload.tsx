@@ -61,10 +61,10 @@ export function FileUpload() {
             />
           </div>
           <div className="space-y-2">
-            <p className="text-[16px] sm:text-[20px] font-sans">
+            <p className="text-[20px] font-sans">
               <span className="font-bold" style={{ color: '#6D56FA' }}>Click to upload</span> <span style={{ color: '#15112B80' }}>or drag and drop</span>
             </p>
-            <p className="text-[14px] sm:text-[20px] font-sans" style={{ color: '#15112B80' }}>
+            <p className="text-[16px] font-sans" style={{ color: '#15112B80' }}>
               Upload your materials and start generating - for <span className="font-bold">FREE</span>
             </p>
           </div>

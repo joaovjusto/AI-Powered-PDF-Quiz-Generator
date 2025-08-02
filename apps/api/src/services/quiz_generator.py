@@ -108,6 +108,10 @@ def generate_quiz(text: str, num_questions: int = 10) -> List[Dict]:
     3. Vary the difficulty level of questions
     4. {language_instructions}
     5. Make sure all questions and answers are in the same language as the source text
+    6. VERY IMPORTANT: For each question, randomly place the correct answer in a different position (0-3)
+       - DO NOT always put the correct answer in the same position
+       - Distribute correct answers randomly across all positions
+       - Make sure the correct_index matches the actual position of the correct answer
     
     BASE TEXT:
     {text}
@@ -124,7 +128,7 @@ def generate_quiz(text: str, num_questions: int = 10) -> List[Dict]:
                     "Option C",
                     "Option D"
                 ],
-                "correct_index": 0
+                "correct_index": 2  // This should vary randomly for each question (0-3)
             }}
         ]
     }}
@@ -133,6 +137,7 @@ def generate_quiz(text: str, num_questions: int = 10) -> List[Dict]:
     - correct_index must be a number between 0 and 3
     - Generate EXACTLY {num_questions} questions
     - DO NOT include explanations or additional text, just the JSON
+    - Make sure to randomize the position of correct answers
     """
     
     try:
@@ -140,7 +145,7 @@ def generate_quiz(text: str, num_questions: int = 10) -> List[Dict]:
             model="gpt-3.5-turbo",
             response_format={ "type": "json_object" },
             messages=[
-                {"role": "system", "content": f"You are an expert at creating multiple-choice questions in {language}. Always respond with valid JSON."},
+                {"role": "system", "content": f"You are an expert at creating multiple-choice questions in {language}. Always respond with valid JSON. Remember to randomize the position of correct answers."},
                 {"role": "user", "content": prompt}
             ]
         )
@@ -159,6 +164,10 @@ def generate_quiz(text: str, num_questions: int = 10) -> List[Dict]:
 
         questions = quiz_data["questions"]
         print("Questions:", questions)  # Debug
+
+        # Verify correct_index distribution
+        correct_indices = [q["correct_index"] for q in questions]
+        print("Correct answer positions:", correct_indices)  # Debug - to check randomization
 
         return questions
         

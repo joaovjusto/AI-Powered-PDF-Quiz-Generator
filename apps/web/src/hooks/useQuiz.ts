@@ -24,17 +24,26 @@ export function useQuiz() {
 
       const data = await response.json()
       
+      // Primeiro setamos os dados
       setQuestions(data.questions)
       setMetadata({
-        totalPages: data.total_pages,
-        totalTokens: data.total_tokens,
-        processingTimeSeconds: data.processing_time_seconds
+        totalPages: data.metadata.pdf_info.total_pages,
+        totalTokens: data.metadata.total_tokens,
+        processingTimeSeconds: data.metadata.processing_time_seconds
       })
 
+      // Pequena espera para garantir que os dados foram atualizados
+      await new Promise(resolve => setTimeout(resolve, 100))
+
+      // Depois navegamos para a próxima página
       router.push('/edit')
+
+      // Só então, após um pequeno delay, removemos o loading
+      setTimeout(() => {
+        setIsProcessing(false)
+      }, 500)
     } catch (error) {
       setError(error instanceof Error ? error.message : 'An error occurred')
-    } finally {
       setIsProcessing(false)
     }
   }

@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { Providers } from '@/providers'
 import { LayoutWrapper } from '@/components/LayoutWrapper'
+import { PageTransition } from '@/components/PageTransition'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -28,9 +29,11 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable} font-sans`}>
       <body>
         <Providers>
-          <main className="min-h-screen sm:flex sm:items-center pt-8 sm:pt-0" style={{ backgroundColor: '#F8F8F9' }}>
+          <main style={{ backgroundColor: '#F8F8F9' }}>
             <LayoutWrapper>
-              {children}
+              <PageTransition>
+                {children}
+              </PageTransition>
             </LayoutWrapper>
           </main>
         </Providers>
