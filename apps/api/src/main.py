@@ -1,46 +1,50 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from config import settings
+from openai import OpenAI
+import os
+from dotenv import load_dotenv
 from services.quiz_generator import extract_text_from_pdf, generate_quiz
 
-app = FastAPI(
-    title="PDF Quiz Generator API",
-    description="API for generating quizzes from PDF documents using AI",
-    version="1.0.0"
-)
+# Load environment variables
+load_dotenv()
 
-# Configure CORS
+# Initialize FastAPI app
+app = FastAPI()
+
+# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Next.js development server
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-@app.get("/health")
-async def health_check():
-    return {"status": "healthy"}
+# Test route
+@app.get("/")
+async def root():
+    return {"message": "Quiz Generator API"}
 
 @app.get("/test-openai")
 async def test_openai():
     """
-    Testa a configuração da API da OpenAI
+    Tests if OpenAI API key is configured correctly
     """
-    is_configured = bool(settings.OPENAI_API_KEY)
-    key_preview = f"{settings.OPENAI_API_KEY[:10]}..." if is_configured else None
+    try:
+        client = OpenAI()
+        is_configured = bool(client.api_key)
+    except Exception:
+        is_configured = False
     
     return {
-        "status": "success" if is_configured else "error",
-        "api_key_configured": is_configured,
-        "key_preview": key_preview,
-        "message": "OpenAI API key está configurada corretamente!" if is_configured else "OpenAI API key não encontrada"
+        "status": "OpenAI API key encontrada e configurada" if
+        is_configured else "OpenAI API key não encontrada"
     }
 
 @app.post("/generate-quiz")
 async def create_quiz(
     file: UploadFile = File(...),
-    num_questions: int = 5
+    num_questions: int = 10  # Default changed to 10
 ):
     """
     Receives a PDF file and generates a quiz based on its content
