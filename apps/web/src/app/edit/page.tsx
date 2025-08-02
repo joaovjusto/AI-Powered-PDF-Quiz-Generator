@@ -12,6 +12,7 @@ import {
   HStack,
   Icon,
   VStack,
+  Stack,
 } from '@chakra-ui/react'
 import { ChevronLeftIcon } from '@chakra-ui/icons'
 import { useScrollSync } from 'react-use-scroll-sync'
@@ -36,11 +37,8 @@ export default function EditPage() {
 
     const handleScroll = (e: WheelEvent) => {
       if (e.target instanceof Node && container.contains(e.target)) {
-        // Se o scroll acontece dentro do container, não fazemos nada
         return
       }
-
-      // Se o scroll acontece fora do container, scrollamos o container
       container.scrollTop += e.deltaY
     }
 
@@ -70,7 +68,8 @@ export default function EditPage() {
     >
       {/* Header com botão Back e título */}
       <Box w="full" flexShrink={0}>
-        <Box px={4} py={4} ml={6}>
+        {/* Container para alinhar o botão Back com o conteúdo */}
+        <Container maxW="4xl" px={4} py={4}>
           <Button
             leftIcon={<Icon as={ChevronLeftIcon} color="#6D56FA" boxSize={6} />}
             variant="ghost"
@@ -86,11 +85,15 @@ export default function EditPage() {
           >
             Back
           </Button>
-        </Box>
+        </Container>
         
-        {/* Título com logo - Movido para fora do scroll */}
+        {/* Título com logo - Responsivo */}
         <Container maxW="4xl" mb={8}>
-          <HStack spacing={3} alignItems="center">
+          <Stack 
+            spacing={3} 
+            alignItems="center"
+            direction={{ base: 'column', md: 'row' }}
+          >
             <Image
               src="/logo.svg"
               alt="Logo"
@@ -99,14 +102,15 @@ export default function EditPage() {
               style={{ objectFit: 'contain' }}
             />
             <Heading 
-              fontSize="32px"
+              fontSize={{ base: "24px", md: "32px" }}
               fontWeight="500"
               color="#3E3C46"
               style={{ fontFamily: 'var(--font-inter)' }}
+              textAlign={{ base: "center", md: "left" }}
             >
               Review & Edit Questions
             </Heading>
-          </HStack>
+          </Stack>
         </Container>
       </Box>
 
