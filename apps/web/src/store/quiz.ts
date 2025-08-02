@@ -10,6 +10,7 @@ interface QuizMetadata {
   totalPages: number
   totalTokens: number
   processingTimeSeconds: number
+  topic: string
 }
 
 interface QuizState {

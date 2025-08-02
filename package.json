@@ -21,6 +21,10 @@
     "concurrently": "^8.2.2"
   },
   "dependencies": {
+    "@chakra-ui/react": "^3.24.0",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "framer-motion": "^12.23.12",
     "ls": "^0.2.1"
   }
 }

@@ -19,6 +19,23 @@ def detect_language(text: str, client: OpenAI) -> str:
         print(f"Error detecting language: {str(e)}")
         return "en"  # Default to English if detection fails
 
+def identify_topic(text: str, client: OpenAI, language: str) -> str:
+    """
+    Identifies the main topic of the text using OpenAI API
+    """
+    try:
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are an expert at identifying the main topic or subject area of academic texts. Respond with a concise topic (1-3 words)."},
+                {"role": "user", "content": f"What is the main topic or subject area of this text? Be concise (1-3 words):\n\n{text[:2000]}"}
+            ]
+        )
+        return response.choices[0].message.content.strip()
+    except Exception as e:
+        print(f"Error identifying topic: {str(e)}")
+        return "General Knowledge"  # Default topic if identification fails
+
 async def extract_text_from_pdf(pdf_file) -> tuple[str, dict]:
     """
     Extracts text from PDF file
@@ -82,6 +99,9 @@ def generate_quiz(text: str, num_questions: int = 10) -> List[Dict]:
     
     # Detect language
     language = detect_language(text, client)
+    
+    # Identify topic
+    topic = identify_topic(text, client, language)
     
     # If text is too long, generate a summary first
     text_length = len(text)
@@ -165,11 +185,10 @@ def generate_quiz(text: str, num_questions: int = 10) -> List[Dict]:
         questions = quiz_data["questions"]
         print("Questions:", questions)  # Debug
 
-        # Verify correct_index distribution
-        correct_indices = [q["correct_index"] for q in questions]
-        print("Correct answer positions:", correct_indices)  # Debug - to check randomization
+        # Add topic to the response
+        quiz_data["topic"] = topic
 
-        return questions
+        return questions, topic
         
     except Exception as e:
         raise Exception(f"Error generating quiz: {str(e)}")
