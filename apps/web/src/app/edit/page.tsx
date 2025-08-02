@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { Question } from '@/components/Question'
 import { LoadingQuizScreen } from '@/components/LoadingQuizScreen'
+import { quizService } from '@/services/quizService'
 import Image from 'next/image'
 import {
   Box,
@@ -72,7 +73,18 @@ export default function EditPage() {
 
   const handleStartQuiz = async () => {
     setIsStarting(true)
-    await cacheCurrentQuiz()
+    const cacheSuccess = await cacheCurrentQuiz()
+    
+    if (cacheSuccess) {
+      const prepareSuccess = await quizService.prepareQuiz()
+      if (prepareSuccess) {
+        router.push('/quiz')
+      } else {
+        setIsStarting(false)
+      }
+    } else {
+      setIsStarting(false)
+    }
   }
 
   if (isProcessing) {
@@ -197,9 +209,13 @@ export default function EditPage() {
             size="lg"
             bg="#6D56FA"
             color="white"
+            borderRadius="12px"
             fontSize="16px"
-            height="50px"
-            px="32px"
+            height="44px"
+            px="16px"
+            py="10px"
+            fontWeight="500"
+            style={{ fontFamily: 'var(--font-inter)' }}
             _hover={{ bg: '#5842E8' }}
             onClick={handleStartQuiz}
           >
