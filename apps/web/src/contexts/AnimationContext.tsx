@@ -1,6 +1,7 @@
 'use client'
 
 import { createContext, useContext, useState } from 'react'
+import { useBreakpointValue } from '@chakra-ui/react'
 
 type AnimationStage = 'logo' | 'divider' | 'checklist'
 
@@ -9,6 +10,7 @@ interface AnimationContextType {
   opacity: number
   setCurrentStage: (stage: AnimationStage) => void
   setOpacity: (opacity: number) => void
+  isMobile: boolean
 }
 
 const AnimationContext = createContext<AnimationContextType | undefined>(undefined)
@@ -16,13 +18,15 @@ const AnimationContext = createContext<AnimationContextType | undefined>(undefin
 export function AnimationProvider({ children }: { children: React.ReactNode }) {
   const [currentStage, setCurrentStage] = useState<AnimationStage>('logo')
   const [opacity, setOpacity] = useState(1)
+  const isMobile = useBreakpointValue({ base: true, md: false }) ?? false
 
   return (
     <AnimationContext.Provider value={{ 
       currentStage, 
       setCurrentStage,
       opacity,
-      setOpacity
+      setOpacity,
+      isMobile
     }}>
       {children}
     </AnimationContext.Provider>

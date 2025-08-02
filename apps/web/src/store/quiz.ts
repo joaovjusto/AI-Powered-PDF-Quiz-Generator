@@ -28,7 +28,7 @@ interface QuizState {
 export const useQuizStore = create<QuizState>((set) => ({
   questions: null,
   metadata: null,
-  isProcessing: false,
+  isProcessing: true,
   error: null,
   setQuestions: (questions) => set({ questions }),
   setMetadata: (metadata) => set({ metadata }),

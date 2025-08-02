@@ -54,7 +54,7 @@ export function Question({ number, question, options, correctIndex }: QuestionPr
           Question {number}:
         </Text>
         
-        {/* Textarea da Questão */}
+        {/* Question Textarea */}
         <Textarea
           value={editableQuestion}
           onChange={(e) => setEditableQuestion(e.target.value)}
@@ -79,7 +79,7 @@ export function Question({ number, question, options, correctIndex }: QuestionPr
           }}
         />
 
-        {/* Divider com 10% de opacidade */}
+        {/* Divider with 10% opacity */}
         <Divider 
           borderColor="black" 
           opacity={0.1} 
@@ -97,7 +97,7 @@ export function Question({ number, question, options, correctIndex }: QuestionPr
           Multichoice Answers
         </Text>
 
-        {/* Opções editáveis */}
+        {/* Editable Options */}
         <VStack spacing={4} align="stretch">
           {editableOptions.map((option, index) => (
             <Box 

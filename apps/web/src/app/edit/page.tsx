@@ -9,19 +9,19 @@ import {
   Container,
   Heading,
   Button,
-  HStack,
   Icon,
   VStack,
   Stack,
+  useBreakpointValue,
 } from '@chakra-ui/react'
 import { ChevronLeftIcon } from '@chakra-ui/icons'
-import { useScrollSync } from 'react-use-scroll-sync'
 
 export default function EditPage() {
   const { questions, metadata, isProcessing } = useQuizStore()
   const router = useRouter()
   const containerRef = useRef<HTMLDivElement>(null)
   const mainRef = useRef<HTMLDivElement>(null)
+  const isMobile = useBreakpointValue({ base: true, md: false })
 
   useEffect(() => {
     if (!questions?.length && !isProcessing) {
@@ -66,41 +66,66 @@ export default function EditPage() {
       flexDirection="column" 
       overflow="hidden"
     >
-      {/* Header com botão Back e título */}
+      {/* Header with Back button and title */}
       <Box w="full" flexShrink={0}>
-        {/* Container para alinhar o botão Back com o conteúdo */}
-        <Container maxW="4xl" px={4} py={4}>
-          <Button
-            leftIcon={<Icon as={ChevronLeftIcon} color="#6D56FA" boxSize={6} />}
-            variant="ghost"
-            color="#6D56FA"
-            onClick={() => router.push('/')}
-            pl={0}
-            ml={0}
-            fontSize="14px"
-            fontWeight="600"
-            style={{ fontFamily: 'var(--font-inter)' }}
-            _hover={{ bg: 'transparent' }}
-            gap={0}
-          >
-            Back
-          </Button>
-        </Container>
+        {isMobile ? (
+          // Mobile version - Button aligned with container
+          <Container maxW="4xl" px={4} py={4}>
+            <Button
+              leftIcon={<Icon as={ChevronLeftIcon} color="#6D56FA" boxSize={6} />}
+              variant="ghost"
+              color="#6D56FA"
+              onClick={() => router.push('/')}
+              pl={0}
+              ml={0}
+              fontSize="14px"
+              fontWeight="600"
+              style={{ fontFamily: 'var(--font-inter)' }}
+              _hover={{ bg: 'transparent' }}
+              gap={0}
+            >
+              Back
+            </Button>
+          </Container>
+        ) : (
+          // Desktop version - Original layout
+          <Box px={4} py={4} ml={6}>
+            <Button
+              leftIcon={<Icon as={ChevronLeftIcon} color="#6D56FA" boxSize={6} />}
+              variant="ghost"
+              color="#6D56FA"
+              onClick={() => router.push('/')}
+              pl={0}
+              ml={0}
+              fontSize="14px"
+              fontWeight="600"
+              style={{ fontFamily: 'var(--font-inter)' }}
+              _hover={{ bg: 'transparent' }}
+              gap={0}
+            >
+              Back
+            </Button>
+          </Box>
+        )}
         
-        {/* Título com logo - Responsivo */}
+        {/* Title with logo - Responsive */}
         <Container maxW="4xl" mb={8}>
           <Stack 
-            spacing={3} 
-            alignItems="center"
             direction={{ base: 'column', md: 'row' }}
+            spacing={{ base: 4, md: 3 }}
+            alignItems="center"
+            width="100%"
+            justifyContent={{ base: 'center', md: 'flex-start' }}
           >
-            <Image
-              src="/logo.svg"
-              alt="Logo"
-              width={31}
-              height={29}
-              style={{ objectFit: 'contain' }}
-            />
+            <Box textAlign={{ base: 'center', md: 'left' }}>
+              <Image
+                src="/logo.svg"
+                alt="Logo"
+                width={31}
+                height={29}
+                style={{ objectFit: 'contain', margin: '0 auto' }}
+              />
+            </Box>
             <Heading 
               fontSize={{ base: "24px", md: "32px" }}
               fontWeight="500"
@@ -114,7 +139,7 @@ export default function EditPage() {
         </Container>
       </Box>
 
-      {/* Conteúdo principal com scroll */}
+      {/* Main content with scroll */}
       <Box flex="1" overflow="hidden">
         <Container 
           ref={containerRef}
@@ -152,7 +177,7 @@ export default function EditPage() {
         >
           <Box pr={2}>
             <VStack align="stretch" spacing={4}>
-              {/* Lista de questões */}
+              {/* Questions list */}
               {questions.map((question, index) => (
                 <Question
                   key={index}
@@ -163,7 +188,7 @@ export default function EditPage() {
                 />
               ))}
 
-              {/* Botão Start Quiz */}
+              {/* Start Quiz button */}
               <Button
                 size="lg"
                 colorScheme="purple"

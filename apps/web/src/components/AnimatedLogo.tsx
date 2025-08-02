@@ -6,7 +6,7 @@ import { useAnimation } from '@/contexts/AnimationContext'
 
 export function AnimatedLogo() {
   const [gradientPosition, setGradientPosition] = useState(-20)
-  const { currentStage, setCurrentStage } = useAnimation()
+  const { currentStage, setCurrentStage, isMobile } = useAnimation()
   const isActive = currentStage === 'logo'
 
   // Reset position when stage changes to logo
@@ -17,33 +17,39 @@ export function AnimatedLogo() {
   }, [currentStage])
 
   useEffect(() => {
-    if (!isActive) return
+    if (!isActive && !isMobile) return
 
     const interval = setInterval(() => {
       setGradientPosition((prev) => {
         if (prev >= 120) {
-          setTimeout(() => setCurrentStage('divider'), 0)
-          return 120
+          if (isMobile) {
+            // No mobile, reinicia a animação
+            return -20
+          } else {
+            // No desktop, segue para próxima etapa
+            setTimeout(() => setCurrentStage('divider'), 0)
+            return 120
+          }
         }
         return prev + 1
       })
     }, 20)
 
     return () => clearInterval(interval)
-  }, [isActive, setCurrentStage])
+  }, [isActive, setCurrentStage, isMobile])
 
   return (
     <div
       style={{
         position: 'relative',
-        width: '130px',
-        height: '135px',
+        width: isMobile ? '100px' : '130px',
+        height: isMobile ? '104px' : '135px',
       }}
     >
       <motion.div
         style={{
           position: 'absolute',
-          top: 'calc(50% - 40px)',
+          top: isMobile ? 0 : 'calc(50% - 40px)',
           left: 0,
           width: '100%',
           height: '100%',
