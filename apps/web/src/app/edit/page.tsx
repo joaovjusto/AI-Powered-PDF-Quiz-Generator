@@ -1,8 +1,9 @@
 'use client'
 import { useQuizStore } from '@/store/quiz'
 import { useRouter } from 'next/navigation'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Question } from '@/components/Question'
+import { LoadingQuizScreen } from '@/components/LoadingQuizScreen'
 import Image from 'next/image'
 import {
   Box,
@@ -22,6 +23,7 @@ export default function EditPage() {
   const containerRef = useRef<HTMLDivElement>(null)
   const mainRef = useRef<HTMLDivElement>(null)
   const isMobile = useBreakpointValue({ base: true, md: false })
+  const [isStarting, setIsStarting] = useState(false)
 
   useEffect(() => {
     if (!questions?.length && !isProcessing) {
@@ -55,6 +57,10 @@ export default function EditPage() {
 
   if (!questions?.length) {
     return null
+  }
+
+  if (isStarting) {
+    return <LoadingQuizScreen />
   }
 
   return (
@@ -140,7 +146,43 @@ export default function EditPage() {
       </Box>
 
       {/* Main content with scroll */}
-      <Box flex="1" overflow="hidden">
+      <Box flex="1" overflow="hidden" position="relative">
+        {/* Fade out effect at the bottom */}
+        <Box
+          position="absolute"
+          bottom="0"
+          left="0"
+          right="0"
+          height="200px"
+          pointerEvents="none"
+          zIndex="1"
+          background="linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.8) 40%, rgba(255, 255, 255, 0.95) 70%, rgba(255, 255, 255, 1) 100%)"
+        />
+
+        {/* Fixed Start Quiz Button */}
+        <Box
+          position="absolute"
+          bottom="40px"
+          left="0"
+          right="0"
+          display="flex"
+          justifyContent="center"
+          zIndex="2"
+        >
+          <Button
+            size="lg"
+            bg="#6D56FA"
+            color="white"
+            fontSize="16px"
+            height="50px"
+            px="32px"
+            _hover={{ bg: '#5842E8' }}
+            onClick={() => setIsStarting(true)}
+          >
+            Start Quiz
+          </Button>
+        </Box>
+        
         <Container 
           ref={containerRef}
           maxW="4xl" 
@@ -148,6 +190,7 @@ export default function EditPage() {
           overflowY="auto"
           position="relative"
           pr={3}
+          pb="200px"
           css={{
             '&::-webkit-scrollbar-track': {
               background: '#FFFFFF',
@@ -187,20 +230,6 @@ export default function EditPage() {
                   correctIndex={question.correct_index}
                 />
               ))}
-
-              {/* Start Quiz button */}
-              <Button
-                size="lg"
-                colorScheme="purple"
-                bg="brand.purple"
-                w="full"
-                maxW="200px"
-                mx="auto"
-                mt={8}
-                mb={8}
-              >
-                Start Quiz
-              </Button>
             </VStack>
           </Box>
         </Container>

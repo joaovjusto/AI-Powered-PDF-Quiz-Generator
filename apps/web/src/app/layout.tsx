@@ -13,7 +13,7 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'PDF Quiz Generator',
+  title: 'Unstuck',
   description: 'Generate quizzes from PDF documents using AI',
   icons: {
     icon: '/logo.svg'
