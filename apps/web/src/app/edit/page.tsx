@@ -18,7 +18,14 @@ import {
 import { ChevronLeftIcon } from '@chakra-ui/icons'
 
 export default function EditPage() {
-  const { questions, metadata, isProcessing } = useQuizStore()
+  const { 
+    questions, 
+    metadata, 
+    isProcessing, 
+    cacheCurrentQuiz,
+    loadCachedQuiz,
+    clearCache 
+  } = useQuizStore()
   const router = useRouter()
   const containerRef = useRef<HTMLDivElement>(null)
   const mainRef = useRef<HTMLDivElement>(null)
@@ -26,10 +33,17 @@ export default function EditPage() {
   const [isStarting, setIsStarting] = useState(false)
 
   useEffect(() => {
-    if (!questions?.length && !isProcessing) {
-      router.push('/')
+    const checkCache = async () => {
+      if (!questions?.length && !isProcessing) {
+        const hasCachedQuiz = await loadCachedQuiz()
+        if (!hasCachedQuiz) {
+          router.push('/')
+        }
+      }
     }
-  }, [questions, isProcessing, router])
+    
+    checkCache()
+  }, [questions, isProcessing, loadCachedQuiz, router])
 
   useEffect(() => {
     const container = containerRef.current
@@ -50,6 +64,16 @@ export default function EditPage() {
       main.removeEventListener('wheel', handleScroll)
     }
   }, [])
+
+  const handleBack = async () => {
+    await clearCache()
+    router.push('/')
+  }
+
+  const handleStartQuiz = async () => {
+    setIsStarting(true)
+    await cacheCurrentQuiz()
+  }
 
   if (isProcessing) {
     return null
@@ -81,7 +105,7 @@ export default function EditPage() {
               leftIcon={<Icon as={ChevronLeftIcon} color="#6D56FA" boxSize={6} />}
               variant="ghost"
               color="#6D56FA"
-              onClick={() => router.push('/')}
+              onClick={handleBack}
               pl={0}
               ml={0}
               fontSize="14px"
@@ -100,7 +124,7 @@ export default function EditPage() {
               leftIcon={<Icon as={ChevronLeftIcon} color="#6D56FA" boxSize={6} />}
               variant="ghost"
               color="#6D56FA"
-              onClick={() => router.push('/')}
+              onClick={handleBack}
               pl={0}
               ml={0}
               fontSize="14px"
@@ -177,7 +201,7 @@ export default function EditPage() {
             height="50px"
             px="32px"
             _hover={{ bg: '#5842E8' }}
-            onClick={() => setIsStarting(true)}
+            onClick={handleStartQuiz}
           >
             Start Quiz
           </Button>

@@ -7,13 +7,11 @@ import {
   Input,
   Divider,
   InputGroup,
-  InputRightElement,
-  Flex,
   Textarea,
   useBreakpointValue,
 } from '@chakra-ui/react'
-import { CheckIcon } from '@chakra-ui/icons'
-import { useState } from 'react'
+import { useEffect } from 'react'
+import { useQuizStore } from '@/store/quiz'
 
 interface QuestionProps {
   number: number
@@ -23,15 +21,50 @@ interface QuestionProps {
 }
 
 export function Question({ number, question, options, correctIndex }: QuestionProps) {
-  const [editableOptions, setEditableOptions] = useState(options)
-  const [editableQuestion, setEditableQuestion] = useState(question)
+  const { questions, setQuestions } = useQuizStore()
   const isMobile = useBreakpointValue({ base: true, md: false })
 
-  const handleOptionChange = (index: number, value: string) => {
-    const newOptions = [...editableOptions]
-    newOptions[index] = value
-    setEditableOptions(newOptions)
+  const updateQuestion = (newQuestion: string) => {
+    if (!questions) return
+
+    const updatedQuestions = [...questions]
+    updatedQuestions[number - 1] = {
+      ...updatedQuestions[number - 1],
+      question: newQuestion
+    }
+    setQuestions(updatedQuestions)
   }
+
+  const updateOption = (optionIndex: number, newValue: string) => {
+    if (!questions) return
+
+    const updatedQuestions = [...questions]
+    const updatedOptions = [...updatedQuestions[number - 1].options]
+    updatedOptions[optionIndex] = newValue
+    
+    updatedQuestions[number - 1] = {
+      ...updatedQuestions[number - 1],
+      options: updatedOptions
+    }
+    setQuestions(updatedQuestions)
+  }
+
+  // Sincroniza o estado inicial com o store
+  useEffect(() => {
+    if (!questions) return
+
+    const currentQuestion = questions[number - 1]
+    if (currentQuestion.question !== question || 
+        JSON.stringify(currentQuestion.options) !== JSON.stringify(options)) {
+      const updatedQuestions = [...questions]
+      updatedQuestions[number - 1] = {
+        ...updatedQuestions[number - 1],
+        question,
+        options
+      }
+      setQuestions(updatedQuestions)
+    }
+  }, [])
 
   return (
     <Box
@@ -56,8 +89,8 @@ export function Question({ number, question, options, correctIndex }: QuestionPr
         
         {/* Question Textarea */}
         <Textarea
-          value={editableQuestion}
-          onChange={(e) => setEditableQuestion(e.target.value)}
+          value={questions?.[number - 1]?.question || question}
+          onChange={(e) => updateQuestion(e.target.value)}
           minH="88px"
           p="20px"
           width="100%"
@@ -99,7 +132,7 @@ export function Question({ number, question, options, correctIndex }: QuestionPr
 
         {/* Editable Options */}
         <VStack spacing={4} align="stretch">
-          {editableOptions.map((option, index) => (
+          {(questions?.[number - 1]?.options || options).map((option, index) => (
             <Box 
               key={index}
               display="flex"
@@ -120,7 +153,7 @@ export function Question({ number, question, options, correctIndex }: QuestionPr
                 <InputGroup size="lg">
                   <Input
                     value={option}
-                    onChange={(e) => handleOptionChange(index, e.target.value)}
+                    onChange={(e) => updateOption(index, e.target.value)}
                     height="50px"
                     bg="#F8F8F9"
                     borderRadius="12px"
@@ -135,44 +168,12 @@ export function Question({ number, question, options, correctIndex }: QuestionPr
                       bg: '#F4F2FF'
                     }}
                     px="20px"
-                    pr={!isMobile && index === correctIndex ? "150px" : "20px"}
                     fontSize="16px"
                     fontWeight="500"
                     color="#3E3C46"
                     _placeholder={{ color: "#3E3C46" }}
                     style={{ fontFamily: 'var(--font-inter)' }}
                   />
-                  {!isMobile && index === correctIndex && (
-                    <InputRightElement width="auto" pr={2} height="50px">
-                      <Flex
-                        boxSizing="border-box"
-                        display="flex"
-                        flexDirection="row"
-                        justifyContent="center"
-                        alignItems="center"
-                        padding="8px 10px"
-                        gap="6px"
-                        width="132px"
-                        height="32px"
-                        bg="#ECFDF1"
-                        border="1px solid #ABEFC6"
-                        borderRadius="8px"
-                        flexGrow={0}
-                        margin="0 auto"
-                      >
-                        <CheckIcon boxSize={3} color="#28AD75" />
-                        <Text
-                          color="#28AD75"
-                          fontSize="12px"
-                          fontWeight="500"
-                          lineHeight="normal"
-                          style={{ fontFamily: 'var(--font-inter)' }}
-                        >
-                          Correct Answer
-                        </Text>
-                      </Flex>
-                    </InputRightElement>
-                  )}
                 </InputGroup>
               </Box>
             </Box>
