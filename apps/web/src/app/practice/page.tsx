@@ -15,7 +15,7 @@ import {
   RadioGroup,
   useToast,
 } from '@chakra-ui/react'
-import { ChevronLeftIcon } from '@chakra-ui/icons'
+import { ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons'
 import { useQuizStore } from '@/store/quiz'
 
 export default function PracticePage() {
@@ -64,30 +64,30 @@ export default function PracticePage() {
       {/* Header */}
       <Box w="full" bg="#F8F8F9">
         <Box py={4} pl={8}>
-          <HStack spacing={6} align="center">
+          <HStack spacing={3} align="center">
             <Button
               variant="ghost"
               onClick={handleBack}
-              minW="40px"
-              h="40px"
+              minW="48px"
+              h="48px"
               p={0}
               _hover={{ bg: 'transparent' }}
             >
-              <Icon as={ChevronLeftIcon} color="#15112B80" boxSize={6} />
+              <Icon as={ChevronLeftIcon} color="#15112B80" boxSize="24px" />
             </Button>
 
             <HStack spacing={2} align="center">
               <Image
                 src="/pdf.svg"
                 alt="PDF Icon"
-                width={20}
-                height={20}
+                width={24}
+                height={24}
                 style={{ objectFit: 'contain' }}
               />
               <Text
-                fontSize="14px"
-                color="#15112B80"
-                fontWeight="500"
+                fontSize="24px"
+                color="#6E6B7B"
+                fontWeight="600"
                 style={{ fontFamily: 'var(--font-inter)' }}
               >
                 {metadata?.topic || 'Untitled Topic'}
@@ -96,63 +96,92 @@ export default function PracticePage() {
           </HStack>
         </Box>
 
-        <Container maxW="4xl" px={4}>
-          <Box py={4}>
-            <HStack spacing={3} alignItems="center">
-              <Image
-                src="/logo.svg"
-                alt="Unstuck Quiz Generator Logo"
-                width={31}
-                height={29}
-                style={{ objectFit: 'contain' }}
-              />
-              <Heading
-                as="h1"
-                fontSize={{ base: '24px', md: '32px' }}
-                fontWeight="500"
-                color="#3E3C46"
-                style={{ fontFamily: 'var(--font-inter)' }}
-              >
-                Mathematics Quiz
-              </Heading>
-            </HStack>
-          </Box>
-        </Container>
+
       </Box>
 
       {/* Main Content */}
       <Box flex="1" position="relative">
-        <Container maxW="4xl" px={4} height="100%">
-          <VStack spacing={6} align="stretch">
-            {/* Question Number */}
-            <Text fontSize="16px" color="#6D56FA" fontWeight="500" mt={4}>
-              Question {currentQuestion + 1}
-            </Text>
+        <Container maxW="4xl" px={4} pt={4}>
+          <Box
+            bg="white"
+            borderRadius="12px"
+            p="20px"
+            border="1px solid"
+            borderColor="#41414114"
+          >
+            <VStack spacing={6} align="stretch">
+              {/* Question Number */}
+              <Text 
+                fontSize="18px" 
+                color="#3E3C46" 
+                fontWeight="500"
+                style={{ fontFamily: 'var(--font-inter)' }}
+              >
+                Question {currentQuestion + 1}
+              </Text>
 
-            {/* Question Text */}
-            <Text fontSize="18px" color="#15112B" fontWeight="500" lineHeight="1.6">
-              {question.question}
-            </Text>
+              {/* Question Text */}
+              <Box
+                bg="#98989814"
+                border="1px solid"
+                borderColor="#D9D9D91F"
+                p="20px"
+                borderRadius="8px"
+              >
+                <Text 
+                  fontSize="20px" 
+                  color="#3E3C46" 
+                  fontWeight="500"
+                  lineHeight="1.6"
+                  style={{ fontFamily: 'var(--font-inter)' }}
+                >
+                  {question.question}
+                </Text>
+              </Box>
 
-            {/* Options */}
-            <RadioGroup value={selectedAnswer} onChange={setSelectedAnswer}>
-              <VStack spacing={4} align="stretch">
-                {question.options.map((option, index) => (
-                  <Radio
-                    key={index}
-                    value={index.toString()}
-                    size="lg"
-                    colorScheme="purple"
-                    borderColor="#D9D9D9"
-                  >
-                    <Text fontSize="16px" color="#15112B" ml={2}>
-                      {option}
-                    </Text>
-                  </Radio>
-                ))}
-              </VStack>
-            </RadioGroup>
-          </VStack>
+              <Box 
+                height="1px" 
+                bg="#0000001A" 
+                width="100%" 
+                my={2}
+              />
+
+              {/* Options */}
+              <RadioGroup value={selectedAnswer} onChange={setSelectedAnswer}>
+                <VStack spacing={4} align="stretch">
+                  {question.options.map((option, index) => (
+                    <Box
+                      key={index}
+                      bg="#98989814"
+                      border="1px solid"
+                      borderColor="#D9D9D91F"
+                      p="20px"
+                      borderRadius="8px"
+                      width="100%"
+                    >
+                      <Radio
+                        value={index.toString()}
+                        size="lg"
+                        colorScheme="purple"
+                        borderColor="#D9D9D9"
+                        width="100%"
+                      >
+                        <Text 
+                          fontSize="18px" 
+                          color="#3E3C46" 
+                          fontWeight="500"
+                          style={{ fontFamily: 'var(--font-inter)' }}
+                          ml={2}
+                        >
+                          {option}
+                        </Text>
+                      </Radio>
+                    </Box>
+                  ))}
+                </VStack>
+              </RadioGroup>
+            </VStack>
+          </Box>
         </Container>
 
         {/* Navigation Buttons */}
@@ -170,7 +199,11 @@ export default function PracticePage() {
                 px="32px"
                 fontSize="16px"
                 fontWeight="500"
+                borderRadius="12px"
+                style={{ fontFamily: 'var(--font-inter)' }}
+                size="lg"
               >
+                <Icon as={ChevronLeftIcon} boxSize={5} mr={2} />
                 Previous
               </Button>
               <Button
@@ -183,8 +216,12 @@ export default function PracticePage() {
                 px="32px"
                 fontSize="16px"
                 fontWeight="500"
+                borderRadius="12px"
+                style={{ fontFamily: 'var(--font-inter)' }}
+                size="lg"
               >
                 Next
+                <Icon as={ChevronRightIcon} boxSize={5} ml={2} />
               </Button>
             </HStack>
           </Container>
