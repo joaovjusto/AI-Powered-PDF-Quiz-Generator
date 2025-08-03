@@ -1,48 +1,42 @@
-name: Frontend CI/CD
+name: Vercel Preview Deployment
+
+env:
+    VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+    VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
 on:
-  workflow_dispatch:
-  push:
-    branches: [ main ]
-    paths:
-      - 'apps/web/**'
-  pull_request:
-    branches: [ main ]
-    paths:
-      - 'apps/web/**'
+    push:
+        branches-ignore:
+            - main
 
 jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
+    Test:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
 
-    steps:
-      - uses: actions/checkout@v3
+            - uses: actions/setup-node@v3
+              with:
+                node-version: 18
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-          cache: 'npm'
+            - run: npm ci
 
-      - name: Install Dependencies
-        run: |
-          cd apps/web
-          npm install
+            - run: npm run test:prod
 
-      - name: Debug Environment Variables
-        run: |
-          echo "VERCEL_TOKEN=${{ secrets.VERCEL_TOKEN }}"
-          echo "Is token valid? $([[ ${VERCEL_TOKEN} =~ ^[a-zA-Z0-9]+$ ]] && echo 'YES' || echo 'NO')"
+    Deploy-Preview:
+        needs: [Test]
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
 
-      - name: Install Vercel CLI
-        run: |
-          npm install -g vercel
+            - name: Install Vercel CLI
+              run: npm install --global vercel
 
-      - name: Deploy to Vercel
-        run: |
-          cd apps/web
-          VERCEL_TOKEN=${{ secrets.VERCEL_TOKEN }} vercel deploy --prod --token=$VERCEL_TOKEN
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_FRONTEND }}
+            - name: Pull Vercel Environment Information
+              run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+
+            - name: Build Project Artifacts
+              run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+
+            - name: Deploy Project Artifacts
+              run: vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
