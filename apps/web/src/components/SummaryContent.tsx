@@ -227,6 +227,7 @@ export function SummaryContent() {
                                     <Text
                                       fontSize="16px"
                                       color="#3E3C46"
+                                      fontWeight="400"
                                       style={{ fontFamily: 'var(--font-inter)' }}
                                       textAlign="left"
                                       width="100%"
@@ -257,6 +258,7 @@ export function SummaryContent() {
                                   <Text
                                     fontSize="16px"
                                     color="#3E3C46"
+                                    fontWeight="400"
                                     style={{ fontFamily: 'var(--font-inter)' }}
                                   >
                                     {question.question}
