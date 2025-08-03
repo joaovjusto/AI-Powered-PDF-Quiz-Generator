@@ -6,10 +6,8 @@ env:
 
 on:
     workflow_dispatch:
-    push:
-        branches-ignore:
-            - main
 
+jobs:
     Deploy-Preview:
         runs-on: ubuntu-latest
         steps:
