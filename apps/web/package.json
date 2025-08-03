@@ -26,6 +26,7 @@
     "js-cookie": "^3.0.5",
     "next": "14.1.0",
     "react": "18.2.0",
+    "react-confetti": "^6.4.0",
     "react-dom": "18.2.0",
     "react-dropzone": "^14.2.3",
     "react-use-scroll-sync": "^0.1.6",
