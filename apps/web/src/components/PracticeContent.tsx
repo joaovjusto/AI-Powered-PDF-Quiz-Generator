@@ -27,6 +27,13 @@ export function PracticeContent() {
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [selectedAnswer, setSelectedAnswer] = useState('')
   const [isLoading, setIsLoading] = useState(true)
+
+  // Redirect if no questions available
+  useEffect(() => {
+    if (!questions || !Array.isArray(questions) || questions.length === 0) {
+      router.push('/')
+    }
+  }, [])
   const scrollableContainerRef = useRef<HTMLDivElement>(null)
   const [showFeedback, setShowFeedback] = useState(false)
   const [isCorrect, setIsCorrect] = useState(false)
@@ -125,8 +132,13 @@ export function PracticeContent() {
     return null
   }
 
-  const question = questions[currentQuestion]
-  const isLastStep = currentQuestion === questions.length - 1 && showNameInput
+  const question = questions?.[currentQuestion]
+  const isLastStep = currentQuestion === (questions?.length ?? 0) - 1 && showNameInput
+
+  if (!question) {
+    router.push('/')
+    return null
+  }
 
   return (
     <Box w="full" h="100vh" display="flex" flexDirection="column" bg="#F8F8F9" overflow="hidden">

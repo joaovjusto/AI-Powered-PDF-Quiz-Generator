@@ -13,6 +13,11 @@ class QuizQuestion(BaseModel):
     options: List[str]
     correct_index: int
 
+class PdfInfo(BaseModel):
+    total_pages: int
+    pages_read: int
+    was_truncated: bool
+
 class QuizMetadata(BaseModel):
     totalPages: int
     original_text_length: int
@@ -20,13 +25,29 @@ class QuizMetadata(BaseModel):
     num_questions: int
     topic: Optional[str] = None
 
-class CachePayload(BaseModel):
+class QuizCachePayload(BaseModel):
     session_id: str
     questions: List[QuizQuestion]
     metadata: QuizMetadata
 
-# In-memory cache
-quiz_cache: Dict[str, CachePayload] = {}
+class ResultMetadata(BaseModel):
+    topic: Optional[str] = None
+    pdf_info: Optional[PdfInfo] = None
+    original_text_length: int
+    was_summarized: bool
+    num_questions: int
+    processingTimeSeconds: Optional[float] = None
+
+class ResultCachePayload(BaseModel):
+    session_id: str
+    userName: str
+    userAnswers: List[int]
+    questions: List[QuizQuestion]
+    metadata: ResultMetadata
+
+# In-memory caches
+quiz_cache: Dict[str, QuizCachePayload] = {}
+result_cache: Dict[str, ResultCachePayload] = {}
 
 # Load environment variables
 load_dotenv()
@@ -132,7 +153,7 @@ async def get_quiz_cache(session_id: str = Query(...)):
     return quiz_cache[session_id]
 
 @app.post("/api/cache")
-async def save_quiz_cache(payload: CachePayload):
+async def save_quiz_cache(payload: QuizCachePayload):
     """Save quiz data to cache"""
     quiz_cache[payload.session_id] = payload
     return {"status": "success"}
@@ -143,4 +164,27 @@ async def delete_quiz_cache(session_id: str = Query(...)):
     if session_id not in quiz_cache:
         raise HTTPException(status_code=404, detail="Cache not found")
     del quiz_cache[session_id]
+    return {"status": "success"}
+
+@app.get("/api/cache/results/{session_id}")
+async def get_result_cache(session_id: str):
+    """Get cached result data for a session"""
+    if session_id not in result_cache:
+        raise HTTPException(status_code=404, detail="Result cache not found")
+    return result_cache[session_id]
+
+@app.post("/api/cache/results/{session_id}")
+async def save_result_cache(session_id: str, payload: ResultCachePayload):
+    """Save result data to cache"""
+    if session_id != payload.session_id:
+        raise HTTPException(status_code=400, detail="Session ID mismatch")
+    result_cache[session_id] = payload
+    return {"status": "success"}
+
+@app.delete("/api/cache/results/{session_id}")
+async def delete_result_cache(session_id: str):
+    """Delete cached result data for a session"""
+    if session_id not in result_cache:
+        raise HTTPException(status_code=404, detail="Result cache not found")
+    del result_cache[session_id]
     return {"status": "success"}

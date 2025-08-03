@@ -36,7 +36,10 @@ export async function saveResultCache(data: ResultCache): Promise<void> {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify({
+        session_id: sessionId,
+        ...data,
+      }),
     })
 
     if (!response.ok) {
