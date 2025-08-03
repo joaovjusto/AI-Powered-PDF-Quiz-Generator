@@ -11,11 +11,11 @@ const CACHE_EXPIRY = 2 * 60 * 60 * 1000 // 2 hours in milliseconds
 
 function cleanExpiredCache() {
   const now = Date.now()
-  for (const [key, value] of quizCache.entries()) {
+  Array.from(quizCache.entries()).forEach(([key, value]) => {
     if (now - value.timestamp > CACHE_EXPIRY) {
       quizCache.delete(key)
     }
-  }
+  })
 }
 
 export async function GET(request: NextRequest) {
