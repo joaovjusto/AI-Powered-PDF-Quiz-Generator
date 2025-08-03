@@ -40,10 +40,15 @@ jobs:
         run: |
           npm install -g vercel
 
+      - name: Verify Current Directory
+        run: |
+          pwd
+          ls -la
+
       - name: Deploy to Vercel
         run: |
           cd apps/web
-          vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }}
+          vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} --debug
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
