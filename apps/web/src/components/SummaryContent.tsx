@@ -84,42 +84,47 @@ export function SummaryContent() {
           overflow="hidden"
         >
           <Box
+            position="relative"
             height="100%"
-            overflowY="auto"
-            pb={{ base: "120px", md: 0 }}
-            css={{
-              '&::-webkit-scrollbar': {
-                width: '8px',
-              },
-              '&::-webkit-scrollbar-track': {
-                background: '#FFFFFF',
-                borderRadius: '10px',
-              },
-              '&::-webkit-scrollbar-thumb': {
-                background: '#F5F5F5',
-                borderRadius: '10px',
-                border: '2px solid #FFFFFF',
-                backgroundClip: 'padding-box',
-              },
-              '&::-webkit-scrollbar-thumb:hover': {
-                background: '#000',
-                borderRadius: '4px',
-                border: '1px solid #6D56FA',
-              },
-              scrollbarWidth: 'auto',
-              scrollbarColor: '#F5F5F5 #FFFFFF',
-              msOverflowStyle: 'none',
-              backgroundAttachment: 'local',
-            }}
+            overflow="hidden"
           >
             <Box
-              bg="white"
-              borderRadius="12px"
-              p="20px"
-              border="1px solid"
-              borderColor="#41414114"
+              height="100%"
+              overflowY="auto"
+              pr={4}
+              pb={{ base: "120px", md: 0 }}
+              css={{
+                '&::-webkit-scrollbar': {
+                  width: '8px',
+                },
+                '&::-webkit-scrollbar-track': {
+                  background: '#FFFFFF',
+                  borderRadius: '10px',
+                },
+                '&::-webkit-scrollbar-thumb': {
+                  background: '#F5F5F5',
+                  borderRadius: '10px',
+                  border: '2px solid #FFFFFF',
+                  backgroundClip: 'padding-box',
+                },
+                '&::-webkit-scrollbar-thumb:hover': {
+                  background: '#000',
+                  borderRadius: '4px',
+                  border: '1px solid #6D56FA',
+                },
+                scrollbarWidth: 'auto',
+                scrollbarColor: '#F5F5F5 #FFFFFF',
+                msOverflowStyle: 'none',
+                backgroundAttachment: 'local',
+              }}
             >
-              <VStack spacing={6} align="stretch">
+              <Box
+                bg="white"
+                borderRadius="12px"
+                p="20px"
+                border="1px solid"
+                borderColor="#41414114"
+              >
                 {/* Score Card */}
                 <Box textAlign="center">
                   {isGoodScore && (
@@ -152,63 +157,79 @@ export function SummaryContent() {
                     {score}
                   </Text>
                 </Box>
+              </Box>
 
-                {/* Result Summary */}
-                <Box mt={8}>
-                  <Text
-                    fontSize="20px"
-                    color="#3E3C46"
-                    fontWeight="600"
-                    mb={4}
-                    style={{ fontFamily: 'var(--font-inter)' }}
-                  >
-                    Result Summary
-                  </Text>
-                  <Accordion allowToggle>
-                    {questions.map((question, index) => (
-                      <AccordionItem key={index} border="none" mb={2}>
+              {/* Result Summary Section */}
+              <Box mt={8}>
+                <Text
+                  fontSize="20px"
+                  color="#3E3C46"
+                  fontWeight="600"
+                  mb={4}
+                  style={{ fontFamily: 'var(--font-inter)' }}
+                >
+                  Result Summary
+                </Text>
+                <Accordion allowToggle>
+                  {questions.map((question, index) => (
+                    <AccordionItem key={index} border="none" mb={2}>
+                      <Box 
+                        bg="white" 
+                        borderRadius="12px" 
+                        p="20px"
+                        border="1px solid"
+                        borderColor="#3E3C461F"
+                      >
                         <AccordionButton
-                          bg="#98989814"
-                          borderRadius="8px"
-                          _hover={{ bg: '#9898981a' }}
-                          p={4}
+                          p={0}
+                          _hover={{ bg: 'transparent' }}
                         >
-                          <HStack justify="space-between" flex="1">
+                          <VStack spacing={4} align="stretch" width="100%">
+                            <HStack justify="space-between" width="100%">
+                              <Text
+                                fontSize="16px"
+                                color="#3E3C46"
+                                fontWeight="500"
+                                style={{ fontFamily: 'var(--font-inter)' }}
+                              >
+                                Question {index + 1}
+                              </Text>
+                              <Box
+                                px={3}
+                                py={1}
+                                borderRadius="8px"
+                                bg={userAnswers[index] === question.correct_index ? "#ECFDF3" : "#FF505014"}
+                                border="1px solid"
+                                borderColor={userAnswers[index] === question.correct_index ? "#ABEFC6" : "#FF625880"}
+                              >
+                                <Text
+                                  fontSize="14px"
+                                  color={userAnswers[index] === question.correct_index ? "#009758" : "#FF5050"}
+                                  fontWeight="500"
+                                  style={{ fontFamily: 'var(--font-inter)' }}
+                                >
+                                  {userAnswers[index] === question.correct_index ? "Correct Answer" : "Wrong Answer"}
+                                </Text>
+                              </Box>
+                            </HStack>
+                            <Box height="1px" bg="#0000001A" width="100%" />
                             <Text
                               fontSize="16px"
                               color="#3E3C46"
-                              fontWeight="500"
                               style={{ fontFamily: 'var(--font-inter)' }}
+                              textAlign="left"
+                              width="100%"
                             >
-                              Question {index + 1}
+                              {question.question}
                             </Text>
-                            <HStack>
-                              <Text
-                                fontSize="14px"
-                                color={userAnswers[index] === question.correct_index ? "#009758" : "#FF5050"}
-                                fontWeight="600"
-                                style={{ fontFamily: 'var(--font-inter)' }}
-                              >
-                                {userAnswers[index] === question.correct_index ? "Correct Answer" : "Wrong Answer"}
-                              </Text>
-                              <AccordionIcon />
-                            </HStack>
-                          </HStack>
+                          </VStack>
                         </AccordionButton>
-                        <AccordionPanel pb={4} pt={4}>
-                          <Text
-                            fontSize="16px"
-                            color="#3E3C46"
-                            style={{ fontFamily: 'var(--font-inter)' }}
-                          >
-                            {question.question}
-                          </Text>
-                        </AccordionPanel>
-                      </AccordionItem>
-                    ))}
-                  </Accordion>
-                </Box>
-              </VStack>
+                      </Box>
+                      <AccordionPanel p={0} />
+                    </AccordionItem>
+                  ))}
+                </Accordion>
+              </Box>
             </Box>
 
             {/* Fade Out Effect */}
