@@ -21,7 +21,8 @@ import { useQuizStore } from '@/store/quiz'
 export function PracticeContent() {
   const router = useRouter()
   const toast = useToast()
-  const { questions = [], metadata, setUserName } = useQuizStore()
+  const { questions = [], metadata, setUserName, setUserAnswers } = useQuizStore()
+  const [answers, setAnswers] = useState<number[]>([])
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [selectedAnswer, setSelectedAnswer] = useState('')
   const [isLoading, setIsLoading] = useState(true)
@@ -62,16 +63,22 @@ export function PracticeContent() {
     if (!selectedAnswer) return;
 
     const question = questions[currentQuestion];
-    const isAnswerCorrect = parseInt(selectedAnswer) === question.correct_index;
+    const selectedIdx = parseInt(selectedAnswer);
+    const isAnswerCorrect = selectedIdx === question.correct_index;
     setIsCorrect(isAnswerCorrect);
     setShowFeedback(true);
 
     setTimeout(() => {
+      const newAnswers = [...answers];
+      newAnswers[currentQuestion] = selectedIdx;
+      setAnswers(newAnswers);
+      
       if (currentQuestion < questions.length - 1) {
         setCurrentQuestion(prev => prev + 1);
         setSelectedAnswer('');
         setShowFeedback(false);
       } else {
+        setUserAnswers(newAnswers);
         setShowNameInput(true);
         setShowFeedback(false);
       }

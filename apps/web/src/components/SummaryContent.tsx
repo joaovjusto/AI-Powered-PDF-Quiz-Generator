@@ -8,14 +8,28 @@ import {
   Button,
   Icon,
   HStack,
+  VStack,
   Text,
+  Accordion,
+  AccordionItem,
+  AccordionButton,
+  AccordionPanel,
+  AccordionIcon,
 } from '@chakra-ui/react'
 import { ChevronLeftIcon } from '@chakra-ui/icons'
 import { useQuizStore } from '@/store/quiz'
 
 export function SummaryContent() {
   const router = useRouter()
-  const { metadata, userName } = useQuizStore()
+  const { metadata, userName, questions, userAnswers } = useQuizStore()
+  
+  const correctAnswers = userAnswers.reduce((acc, answer, index) => {
+    return acc + (answer === questions[index].correct_index ? 1 : 0)
+  }, 0)
+  
+  const totalQuestions = questions.length
+  const score = `${correctAnswers}/${totalQuestions}`
+  const isGoodScore = correctAnswers >= Math.floor(totalQuestions * 0.7) // 70% or better is good
 
   const handleBack = () => {
     router.push('/practice')
@@ -105,7 +119,96 @@ export function SummaryContent() {
               border="1px solid"
               borderColor="#41414114"
             >
-              {/* Empty content area for future implementation */}
+              <VStack spacing={6} align="stretch">
+                {/* Score Card */}
+                <Box textAlign="center">
+                  {isGoodScore && (
+                    <Box mb={4} display="flex" justifyContent="center">
+                      <Image
+                        src="/correctanswer.svg"
+                        alt="Success Icon"
+                        width={48}
+                        height={48}
+                      />
+                    </Box>
+                  )}
+                  <Text
+                    fontSize="24px"
+                    color="#3E3C46"
+                    fontWeight="600"
+                    mb={4}
+                    style={{ fontFamily: 'var(--font-inter)' }}
+                  >
+                    {isGoodScore
+                      ? `Great Work ${userName}, you did very good on your quiz.`
+                      : `Keep practicing ${userName}, you can do better!`}
+                  </Text>
+                  <Text
+                    fontSize="36px"
+                    color="#3E3C46"
+                    fontWeight="700"
+                    style={{ fontFamily: 'var(--font-inter)' }}
+                  >
+                    {score}
+                  </Text>
+                </Box>
+
+                {/* Result Summary */}
+                <Box mt={8}>
+                  <Text
+                    fontSize="20px"
+                    color="#3E3C46"
+                    fontWeight="600"
+                    mb={4}
+                    style={{ fontFamily: 'var(--font-inter)' }}
+                  >
+                    Result Summary
+                  </Text>
+                  <Accordion allowToggle>
+                    {questions.map((question, index) => (
+                      <AccordionItem key={index} border="none" mb={2}>
+                        <AccordionButton
+                          bg="#98989814"
+                          borderRadius="8px"
+                          _hover={{ bg: '#9898981a' }}
+                          p={4}
+                        >
+                          <HStack justify="space-between" flex="1">
+                            <Text
+                              fontSize="16px"
+                              color="#3E3C46"
+                              fontWeight="500"
+                              style={{ fontFamily: 'var(--font-inter)' }}
+                            >
+                              Question {index + 1}
+                            </Text>
+                            <HStack>
+                              <Text
+                                fontSize="14px"
+                                color={userAnswers[index] === question.correct_index ? "#009758" : "#FF5050"}
+                                fontWeight="600"
+                                style={{ fontFamily: 'var(--font-inter)' }}
+                              >
+                                {userAnswers[index] === question.correct_index ? "Correct Answer" : "Wrong Answer"}
+                              </Text>
+                              <AccordionIcon />
+                            </HStack>
+                          </HStack>
+                        </AccordionButton>
+                        <AccordionPanel pb={4} pt={4}>
+                          <Text
+                            fontSize="16px"
+                            color="#3E3C46"
+                            style={{ fontFamily: 'var(--font-inter)' }}
+                          >
+                            {question.question}
+                          </Text>
+                        </AccordionPanel>
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
+                </Box>
+              </VStack>
             </Box>
 
             {/* Fade Out Effect */}
