@@ -21,13 +21,15 @@ import { useQuizStore } from '@/store/quiz'
 export function PracticeContent() {
   const router = useRouter()
   const toast = useToast()
-  const { questions = [], metadata } = useQuizStore()
+  const { questions = [], metadata, setUserName } = useQuizStore()
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [selectedAnswer, setSelectedAnswer] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const scrollableContainerRef = useRef<HTMLDivElement>(null)
   const [showFeedback, setShowFeedback] = useState(false)
   const [isCorrect, setIsCorrect] = useState(false)
+  const [userName, setUserNameLocal] = useState('')
+  const [showNameInput, setShowNameInput] = useState(false)
 
   useEffect(() => {
     if (!questions || questions.length === 0) {
@@ -42,6 +44,21 @@ export function PracticeContent() {
   }
 
   const handleNext = () => {
+    if (showNameInput) {
+      if (!userName.trim()) {
+        toast({
+          title: "Please enter your name",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+        return;
+      }
+      setUserName(userName.trim());
+      router.push('/summary');
+      return;
+    }
+
     if (!selectedAnswer) return;
 
     const question = questions[currentQuestion];
@@ -53,6 +70,9 @@ export function PracticeContent() {
       if (currentQuestion < questions.length - 1) {
         setCurrentQuestion(prev => prev + 1);
         setSelectedAnswer('');
+        setShowFeedback(false);
+      } else {
+        setShowNameInput(true);
         setShowFeedback(false);
       }
     }, 1500);
@@ -70,6 +90,7 @@ export function PracticeContent() {
   }
 
   const question = questions[currentQuestion]
+  const isLastStep = currentQuestion === questions.length - 1 && showNameInput
 
   return (
     <Box w="full" h="100vh" display="flex" flexDirection="column" bg="#F8F8F9" overflow="hidden">
@@ -157,76 +178,108 @@ export function PracticeContent() {
               borderColor="#41414114"
             >
               <VStack spacing={6} align="stretch">
-                {/* Question Number */}
-                <Text 
-                  fontSize="18px" 
-                  color="#3E3C46" 
-                  fontWeight="500"
-                  style={{ fontFamily: 'var(--font-inter)' }}
-                >
-                  Question {currentQuestion + 1}
-                </Text>
-
-                {/* Question Text */}
-                <Box
-                  bg="#98989814"
-                  border="1px solid"
-                  borderColor="#D9D9D91F"
-                  p="20px"
-                  borderRadius="8px"
-                >
+                {!showNameInput && (
                   <Text 
-                    fontSize="20px" 
+                    fontSize="18px" 
                     color="#3E3C46" 
                     fontWeight="500"
-                    lineHeight="1.6"
                     style={{ fontFamily: 'var(--font-inter)' }}
                   >
-                    {question.question}
+                    Question {currentQuestion + 1}
                   </Text>
-                </Box>
-
-                <Box 
-                  height="1px" 
-                  bg="#0000001A" 
-                  width="100%" 
-                  my={2}
-                />
-
-                {/* Options */}
-                <RadioGroup value={selectedAnswer} onChange={setSelectedAnswer}>
-                  <VStack spacing={4} align="stretch">
-                    {question.options.map((option, index) => (
-                      <Box
-                        key={index}
-                        bg="#98989814"
-                        border="1px solid"
-                        borderColor="#D9D9D91F"
-                        p="20px"
-                        borderRadius="8px"
-                        width="100%"
+                )}
+                {showNameInput ? (
+                  <>
+                    {/* Name Input */}
+                    <Box
+                      bg="#98989814"
+                      border="1px solid"
+                      borderColor="#D9D9D91F"
+                      p="20px"
+                      borderRadius="8px"
+                    >
+                      <input
+                        type="text"
+                        value={userName}
+                        onChange={(e) => setUserNameLocal(e.target.value)}
+                        placeholder="Enter your first name"
+                        style={{
+                          width: '100%',
+                          padding: '12px',
+                          fontSize: '16px',
+                          border: '1px solid #D9D9D9',
+                          borderRadius: '8px',
+                          backgroundColor: 'white',
+                          color: '#3E3C46',
+                          fontFamily: 'var(--font-inter)',
+                        }}
+                      />
+                    </Box>
+                  </>
+                ) : (
+                  <>
+                    {/* Question Text */}
+                    <Box
+                      bg="#98989814"
+                      border="1px solid"
+                      borderColor="#D9D9D91F"
+                      p="20px"
+                      borderRadius="8px"
+                    >
+                      <Text 
+                        fontSize="20px" 
+                        color="#3E3C46" 
+                        fontWeight="500"
+                        lineHeight="1.6"
+                        style={{ fontFamily: 'var(--font-inter)' }}
                       >
-                        <Radio
-                          value={index.toString()}
-                          size="lg"
-                          colorScheme="purple"
-                          borderColor="#D9D9D9"
-                          width="100%"
-                        >
-                          <Text 
-                            fontSize="18px" 
-                            color="#3E3C46" 
-                            fontWeight="500"
-                            style={{ fontFamily: 'var(--font-inter)' }}
-                            ml={2}
+                        {question.question}
+                      </Text>
+                    </Box>
+
+                    <Box 
+                      height="1px" 
+                      bg="#0000001A" 
+                      width="100%" 
+                      my={2}
+                    />
+
+                    {/* Options */}
+                    <RadioGroup value={selectedAnswer} onChange={setSelectedAnswer}>
+                      <VStack spacing={4} align="stretch">
+                        {question.options.map((option, index) => (
+                          <Box
+                            key={index}
+                            bg="#98989814"
+                            border="1px solid"
+                            borderColor="#D9D9D91F"
+                            p="20px"
+                            borderRadius="8px"
+                            width="100%"
                           >
-                            {option}
-                          </Text>
-                        </Radio>
-                      </Box>
-                    ))}
-                  </VStack>
-                </RadioGroup>
+                            <Radio
+                              value={index.toString()}
+                              size="lg"
+                              colorScheme="purple"
+                              borderColor="#D9D9D9"
+                              width="100%"
+                            >
+                              <Text 
+                                fontSize="18px" 
+                                color="#3E3C46" 
+                                fontWeight="500"
+                                style={{ fontFamily: 'var(--font-inter)' }}
+                                ml={2}
+                              >
+                                {option}
+                              </Text>
+                            </Radio>
+                          </Box>
+                        ))}
+                      </VStack>
+                    </RadioGroup>
+                  </>
+                )}
               </VStack>
             </Box>
 
@@ -312,7 +365,7 @@ export function PracticeContent() {
                 </Button>
                 <Button
                   onClick={handleNext}
-                  isDisabled={currentQuestion === questions.length - 1 || !selectedAnswer}
+                  isDisabled={showNameInput ? !userName.trim() : !selectedAnswer}
                   bg="#6D56FA"
                   color="white"
                   _hover={{ bg: '#5842E8' }}
@@ -324,7 +377,7 @@ export function PracticeContent() {
                   style={{ fontFamily: 'var(--font-inter)' }}
                   size="lg"
                 >
-                  Next
+                  {showNameInput ? 'Save & Continue' : 'Next'}
                   <Icon as={ChevronRightIcon} boxSize={{ base: 4, md: 5 }} ml={2} />
                 </Button>
               </HStack>

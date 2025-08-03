@@ -29,10 +29,12 @@ interface QuizState {
   questions: Question[]
   metadata: QuizMetadata | null
   error: string | null
+  userName: string | null
   setQuestions: (questions: Question[]) => void
   setMetadata: (metadata: QuizMetadata) => void
   setIsProcessing: (isProcessing: boolean) => void
   setError: (error: string | null) => void
+  setUserName: (name: string) => void
   reset: () => void
   loadCachedQuiz: () => Promise<boolean>
   cacheCurrentQuiz: () => Promise<void>
@@ -46,11 +48,13 @@ export const useQuizStore = create<QuizState>()(
       questions: [],
       metadata: null,
       error: null,
+      userName: null,
       setQuestions: (questions) => set({ questions }),
       setMetadata: (metadata) => set({ metadata }),
       setIsProcessing: (isProcessing) => set({ isProcessing }),
       setError: (error) => set({ error }),
-      reset: () => set({ questions: [], metadata: null, error: null, isProcessing: false }),
+      setUserName: (name) => set({ userName: name }),
+      reset: () => set({ questions: [], metadata: null, error: null, isProcessing: false, userName: null }),
 
       loadCachedQuiz: async () => {
         const sessionId = getSessionId()
