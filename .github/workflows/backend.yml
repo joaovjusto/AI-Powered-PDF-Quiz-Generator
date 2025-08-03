@@ -1,43 +1,28 @@
-name: Backend CI/CD
+name: Deploy FastAPI to Vercel
 
 on:
-  workflow_dispatch:
   push:
-    branches: [ main ]
-    paths:
-      - 'apps/api/**'
-  pull_request:
-    branches: [ main ]
-    paths:
-      - 'apps/api/**'
+    branches:
+      - main
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - name: Set up Python
+        uses: actions/setup-python@v2
         with:
-          node-version: '18'
-          cache: 'npm'
+          python-version: '3.9'
 
-      - name: Install Dependencies
+      - name: Install dependencies
         run: |
-          cd apps/api
-          npm install
-
-      - name: Install Vercel CLI
-        run: |
-          npm install -g vercel
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
       - name: Deploy to Vercel
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_BACKEND }}
         run: |
-          cd apps/api
-          vercel deploy --prod --token=$VERCEL_TOKEN
+          npm install -g vercel
+          vercel --token ${{ secrets.VERCEL_TOKEN }} --prod
