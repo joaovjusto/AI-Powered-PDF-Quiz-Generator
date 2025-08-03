@@ -2,10 +2,10 @@ from fastapi import FastAPI, File, UploadFile, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from openai import OpenAI
 import os
-from dotenv import load_dotenv
 from services.quiz_generator import extract_text_from_pdf, generate_quiz
 from pydantic import BaseModel
 from typing import List, Dict, Optional
+from config import CORS_ORIGINS, API_PREFIX
 
 # Cache data structures
 class QuizQuestion(BaseModel):
@@ -28,16 +28,18 @@ class CachePayload(BaseModel):
 # In-memory cache
 quiz_cache: Dict[str, CachePayload] = {}
 
-# Load environment variables
-load_dotenv()
-
 # Initialize FastAPI app
-app = FastAPI()
+app = FastAPI(
+    title="Quiz Generator API",
+    description="API for generating quizzes from PDF files",
+    version="1.0.0",
+    root_path=API_PREFIX
+)
 
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -88,19 +90,6 @@ async def create_quiz(
         
         # Generate quiz
         questions, topic = generate_quiz(text, num_questions)
-        
-        # Debug
-        print("Returning response:", {
-            "status": "success",
-            "questions": questions,
-            "metadata": {
-                "original_text_length": text_length,
-                "was_summarized": was_summarized,
-                "num_questions": len(questions) if questions else 0,
-                "pdf_info": pdf_metadata,
-                "topic": topic
-            }
-        })
         
         return {
             "status": "success",

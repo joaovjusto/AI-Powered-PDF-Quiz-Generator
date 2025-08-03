@@ -1,12 +1,19 @@
 import os
 from dotenv import load_dotenv
 
-# Carrega as variáveis de ambiente do arquivo .env
 load_dotenv()
 
-class Settings:
-    OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY")
-    if not OPENAI_API_KEY:
-        raise ValueError("OPENAI_API_KEY não encontrada no arquivo .env")
+# Environment configuration
+ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
+IS_PRODUCTION = ENVIRONMENT == "production"
 
-settings = Settings()
+# CORS configuration
+CORS_ORIGINS = os.getenv("CORS_ORIGINS", "*").split(",")
+if CORS_ORIGINS == ["*"]:
+    CORS_ORIGINS = ["*"]
+else:
+    # Ensure URLs are properly formatted
+    CORS_ORIGINS = [origin.strip() for origin in CORS_ORIGINS if origin.strip()]
+
+# API configuration
+API_PREFIX = os.getenv("API_PREFIX", "")
