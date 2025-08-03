@@ -91,9 +91,12 @@ export const saveQuizCache = async (sessionId: string, data: CachedQuizData): Pr
       original_text_length: data.metadata.original_text_length || 0,
       was_summarized: data.metadata.was_summarized || false,
       num_questions: data.metadata.num_questions || 0,
-      topic: data.metadata.topic || undefined
+      topic: data.metadata.topic
     }
   }
+
+  // Log para debug
+  console.log('Topic being sent:', data.metadata.topic)
 
   console.log('Sending transformed payload:', payload)
 

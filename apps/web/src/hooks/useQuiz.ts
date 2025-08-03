@@ -27,9 +27,12 @@ export function useQuiz() {
       // Primeiro setamos os dados
       setQuestions(data.questions)
       setMetadata({
-        totalPages: data.metadata.pdf_info.total_pages,
-        totalTokens: data.metadata.total_tokens,
-        processingTimeSeconds: data.metadata.processing_time_seconds
+        original_text_length: data.metadata.original_text_length,
+        was_summarized: data.metadata.was_summarized,
+        num_questions: data.metadata.num_questions,
+        pdf_info: data.metadata.pdf_info,
+        processingTimeSeconds: data.metadata.processing_time_seconds || 0,
+        topic: data.metadata.topic
       })
 
       // Pequena espera para garantir que os dados foram atualizados
