@@ -17,10 +17,10 @@ jobs:
         run: npm install --global vercel
 
       - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        run: cd apps/web && vercel pull --environment=production --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Build Project Artifacts
-        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}  # Remover --org e --project
+        run: cd apps/web && vercel build --token=${{ secrets.VERCEL_TOKEN }}  # Remover --org e --project
 
       - name: Deploy Project Artifacts
         run: |
