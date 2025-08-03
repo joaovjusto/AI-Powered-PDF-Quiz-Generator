@@ -25,6 +25,8 @@ export default function PracticePage() {
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [selectedAnswer, setSelectedAnswer] = useState('')
   const [isLoading, setIsLoading] = useState(true)
+  const [showFeedback, setShowFeedback] = useState(false)
+  const [isCorrect, setIsCorrect] = useState(false)
 
   useEffect(() => {
     // Verifica se temos questões carregadas
@@ -40,10 +42,20 @@ export default function PracticePage() {
   }
 
   const handleNext = () => {
-    if (currentQuestion < questions.length - 1) {
-      setCurrentQuestion(prev => prev + 1)
-      setSelectedAnswer('')
-    }
+    if (!selectedAnswer) return;
+
+    const isAnswerCorrect = parseInt(selectedAnswer) === question.correct_index;
+    setIsCorrect(isAnswerCorrect);
+    setShowFeedback(true);
+
+    // Aguarda 1.5 segundos antes de avançar para a próxima questão
+    setTimeout(() => {
+      if (currentQuestion < questions.length - 1) {
+        setCurrentQuestion(prev => prev + 1);
+        setSelectedAnswer('');
+        setShowFeedback(false);
+      }
+    }, 1500);
   }
 
   const handlePrevious = () => {
@@ -182,6 +194,42 @@ export default function PracticePage() {
               </RadioGroup>
             </VStack>
           </Box>
+
+          {/* Feedback Chip */}
+          {showFeedback && (
+            <Box mt={4}>
+              <Box 
+                bg={isCorrect ? "#ECFDF3" : "#FF505014"}
+                border="1px solid"
+                borderColor={isCorrect ? "#009758" : "#FF5050"}
+                borderRadius="16px"
+                px="20px"
+                py="16px"
+                width="100%"
+                display="flex"
+                justifyContent="flex-start"
+                alignItems="center"
+              >
+                {isCorrect && (
+                  <Image
+                    src="/correctanswer.svg"
+                    alt="Correct Answer Icon"
+                    width={26}
+                    height={26}
+                    style={{ marginRight: '8px' }}
+                  />
+                )}
+                <Text
+                  fontSize="26px"
+                  fontWeight="600"
+                  color={isCorrect ? "#009758" : "#FF5050"}
+                  style={{ fontFamily: 'var(--font-inter)' }}
+                >
+                  {isCorrect ? "Correct!" : "Wrong!"}
+                </Text>
+              </Box>
+            </Box>
+          )}
         </Container>
 
         {/* Navigation Buttons */}
@@ -208,7 +256,7 @@ export default function PracticePage() {
               </Button>
               <Button
                 onClick={handleNext}
-                isDisabled={currentQuestion === questions.length - 1}
+                isDisabled={currentQuestion === questions.length - 1 || !selectedAnswer}
                 bg="#6D56FA"
                 color="white"
                 _hover={{ bg: '#5842E8' }}
