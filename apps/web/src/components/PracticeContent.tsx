@@ -84,17 +84,7 @@ export function PracticeContent() {
       newAnswers[currentQuestion] = selectedIdx;
       setAnswers(newAnswers);
 
-      // If correct, move to next question automatically
-      if (isAnswerCorrect) {
-        setTimeout(() => {
-          if (currentQuestion < questions.length - 1) {
-            moveToNextQuestion();
-          } else {
-            finishQuiz(newAnswers);
-          }
-        }, 1500);
-      }
-      // If incorrect, wait for user to click next again after reading explanation
+      // Always wait for user to click next, regardless of whether the answer is correct or incorrect
     } else {
       // User has already answered and clicked next again
       if (currentQuestion < questions.length - 1) {

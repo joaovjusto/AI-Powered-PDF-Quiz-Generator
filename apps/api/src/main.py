@@ -32,18 +32,18 @@ class QuizCachePayload(BaseModel):
 
 class ResultMetadata(BaseModel):
     topic: Optional[str] = None
-    pdf_info: Optional[PdfInfo] = None
+    pdf_info: PdfInfo
     original_text_length: int
     was_summarized: bool
     num_questions: int
-    processingTimeSeconds: Optional[float] = None
+    processingTimeSeconds: float
 
 class ResultCachePayload(BaseModel):
     session_id: str
     userName: str
     userAnswers: List[int]
     questions: List[QuizQuestion]
-    metadata: ResultMetadata
+    metadata: Optional[ResultMetadata] = None
 
 # In-memory caches
 quiz_cache: Dict[str, QuizCachePayload] = {}

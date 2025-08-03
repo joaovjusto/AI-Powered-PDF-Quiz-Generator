@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import html2canvas from 'html2canvas'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import {
@@ -17,7 +18,7 @@ import {
   AccordionPanel,
   AccordionIcon,
 } from '@chakra-ui/react'
-import { ChevronLeftIcon } from '@chakra-ui/icons'
+import { ChevronLeftIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import { useQuizStore } from '@/store/quiz'
 
 export function SummaryContent() {
@@ -25,6 +26,42 @@ export function SummaryContent() {
   const { metadata, userName, questions, userAnswers, loadCachedResults, saveResults } = useQuizStore()
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false)
+  const resultCardRef = useRef<HTMLDivElement>(null)
+
+  const handleShare = async () => {
+    if (!resultCardRef.current) return
+    
+    try {
+      setIsGeneratingImage(true)
+      
+      const canvas = await html2canvas(resultCardRef.current, {
+        backgroundColor: '#F8F8F9',
+        scale: 2, // Better quality for retina displays
+      })
+      
+      // Convert the canvas to a blob
+      const blob = await new Promise<Blob>((resolve) => {
+        canvas.toBlob((blob) => {
+          resolve(blob as Blob)
+        }, 'image/png')
+      })
+      
+      // Create download link
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `quiz-results-${userName}.png`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error('Error generating image:', error)
+    } finally {
+      setIsGeneratingImage(false)
+    }
+  }
 
   useEffect(() => {
     async function loadResults() {
@@ -151,6 +188,7 @@ export function SummaryContent() {
               }}
             >
               <Box
+                ref={resultCardRef}
                 bg="white"
                 borderRadius="12px"
                 p="20px"
@@ -188,6 +226,87 @@ export function SummaryContent() {
                   >
                     {score}
                   </Text>
+
+                  {/* Score Progress Bars */}
+                  <Box mt={6} width="100%" maxW="400px" mx="auto">
+                    <HStack spacing={1} width="100%" height="12px" position="relative">
+                      {/* Green Bar (Correct Answers) */}
+                      <Box
+                        height="100%"
+                        width={`${(correctAnswers / totalQuestions) * 100}%`}
+                        bg="#46CD94"
+                        borderRadius="4px"
+                        transition="width 0.5s ease-in-out"
+                      />
+                      {/* Red Bar (Wrong Answers) */}
+                      <Box
+                        height="100%"
+                        width={`${((totalQuestions - correctAnswers) / totalQuestions) * 100}%`}
+                        bg="#FF6258"
+                        borderRadius="4px"
+                        transition="width 0.5s ease-in-out"
+                      />
+                    </HStack>
+
+                    {/* Legend */}
+                    <HStack spacing={8} mt={4} mb={6} justify="center">
+                      <HStack spacing={2}>
+                        <Box
+                          width="16px"
+                          height="16px"
+                          borderRadius="full"
+                          bg="#46CD94"
+                        />
+                        <Text
+                          fontSize="14px"
+                          color="#3E3C46"
+                          style={{ fontFamily: 'var(--font-inter)' }}
+                        >
+                          Answered Correctly
+                        </Text>
+                      </HStack>
+                      <HStack spacing={2}>
+                        <Box
+                          width="16px"
+                          height="16px"
+                          borderRadius="full"
+                          bg="#FF6258"
+                        />
+                        <Text
+                          fontSize="14px"
+                          color="#3E3C46"
+                          style={{ fontFamily: 'var(--font-inter)' }}
+                        >
+                          Missed Answers
+                        </Text>
+                      </HStack>
+                    </HStack>
+
+                    <Button
+                      mt={6}
+                      onClick={handleShare}
+                      isLoading={isGeneratingImage}
+                      loadingText="Generating image..."
+                      bg="#6D56FA"
+                      color="white"
+                      _hover={{ bg: "#5842E8" }}
+                      _active={{ bg: "#4935D1" }}
+                      px="24px"
+                      py="10px"
+                      mx="auto"
+                      borderRadius="12px"
+                      fontSize="14px"
+                      fontWeight="500"
+                      style={{ fontFamily: 'var(--font-inter)' }}
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                      gap="2"
+                    >
+                      Share Results
+                      <ExternalLinkIcon boxSize="14px" />
+                    </Button>
+                  </Box>
                 </Box>
               </Box>
 

@@ -38,7 +38,17 @@ export async function saveResultCache(data: ResultCache): Promise<void> {
       },
       body: JSON.stringify({
         session_id: sessionId,
-        ...data,
+        userName: data.userName,
+        userAnswers: data.userAnswers,
+        questions: data.questions,
+        metadata: {
+          topic: data.metadata?.topic,
+          pdf_info: data.metadata?.pdf_info,
+          original_text_length: data.metadata?.original_text_length,
+          was_summarized: data.metadata?.was_summarized,
+          num_questions: data.metadata?.num_questions,
+          processingTimeSeconds: data.metadata?.processingTimeSeconds
+        }
       }),
     })
 
