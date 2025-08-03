@@ -2,10 +2,10 @@ from fastapi import FastAPI, File, UploadFile, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from openai import OpenAI
 import os
+from dotenv import load_dotenv
 from services.quiz_generator import extract_text_from_pdf, generate_quiz
 from pydantic import BaseModel
 from typing import List, Dict, Optional
-from config import CORS_ORIGINS, API_PREFIX
 
 # Cache data structures
 class QuizQuestion(BaseModel):
@@ -28,21 +28,35 @@ class CachePayload(BaseModel):
 # In-memory cache
 quiz_cache: Dict[str, CachePayload] = {}
 
+# Load environment variables
+load_dotenv()
+
 # Initialize FastAPI app
 app = FastAPI(
     title="Quiz Generator API",
     description="API for generating quizzes from PDF files",
-    version="1.0.0",
-    root_path=API_PREFIX
+    version="1.0.0"
 )
 
-# Add CORS middleware
+# Get allowed origins from environment variable or use default in development
+allowed_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000").split(",")
+if allowed_origins == ["*"]:
+    allowed_origins = ["*"]
+else:
+    # Clean up the origins
+    allowed_origins = [origin.strip() for origin in allowed_origins if origin.strip()]
+    # Add localhost for development
+    if os.getenv("ENVIRONMENT") != "production":
+        allowed_origins.append("http://localhost:3000")
+
+# Add CORS middleware with more specific configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=CORS_ORIGINS,
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"]
 )
 
 # Test route
