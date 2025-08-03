@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import {
@@ -22,6 +23,7 @@ import { useQuizStore } from '@/store/quiz'
 export function SummaryContent() {
   const router = useRouter()
   const { metadata, userName, questions, userAnswers } = useQuizStore()
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null)
   
   const correctAnswers = userAnswers.reduce((acc, answer, index) => {
     return acc + (answer === questions[index].correct_index ? 1 : 0)
@@ -170,62 +172,160 @@ export function SummaryContent() {
                 >
                   Result Summary
                 </Text>
-                <Accordion allowToggle>
+                                <Accordion 
+                  allowToggle 
+                  index={expandedIndex} 
+                  onChange={(index) => setExpandedIndex(Array.isArray(index) ? index[0] : index)}
+                >
                   {questions.map((question, index) => (
                     <AccordionItem key={index} border="none" mb={2}>
-                      <Box 
-                        bg="white" 
-                        borderRadius="12px" 
-                        p="20px"
-                        border="1px solid"
-                        borderColor="#3E3C461F"
-                      >
-                        <AccordionButton
-                          p={0}
-                          _hover={{ bg: 'transparent' }}
-                        >
-                          <VStack spacing={4} align="stretch" width="100%">
-                            <HStack justify="space-between" width="100%">
-                              <Text
-                                fontSize="16px"
-                                color="#3E3C46"
-                                fontWeight="500"
-                                style={{ fontFamily: 'var(--font-inter)' }}
-                              >
-                                Question {index + 1}
-                              </Text>
-                              <Box
-                                px={3}
-                                py={1}
-                                borderRadius="8px"
-                                bg={userAnswers[index] === question.correct_index ? "#ECFDF3" : "#FF505014"}
-                                border="1px solid"
-                                borderColor={userAnswers[index] === question.correct_index ? "#ABEFC6" : "#FF625880"}
-                              >
-                                <Text
-                                  fontSize="14px"
-                                  color={userAnswers[index] === question.correct_index ? "#009758" : "#FF5050"}
-                                  fontWeight="500"
-                                  style={{ fontFamily: 'var(--font-inter)' }}
-                                >
-                                  {userAnswers[index] === question.correct_index ? "Correct Answer" : "Wrong Answer"}
-                                </Text>
-                              </Box>
-                            </HStack>
-                            <Box height="1px" bg="#0000001A" width="100%" />
-                            <Text
-                              fontSize="16px"
-                              color="#3E3C46"
-                              style={{ fontFamily: 'var(--font-inter)' }}
-                              textAlign="left"
-                              width="100%"
+                      {({ isExpanded }) => (
+                        <>
+                          <Box 
+                            bg="white" 
+                            borderRadius={isExpanded ? "12px 12px 0 0" : "12px"}
+                            p="20px"
+                            border="1px solid"
+                            borderColor="#3E3C461F"
+                            borderBottom={isExpanded ? "none" : "1px solid #3E3C461F"}
+                          >
+                            <AccordionButton
+                              p={0}
+                              _hover={{ bg: 'transparent' }}
                             >
-                              {question.question}
-                            </Text>
-                          </VStack>
-                        </AccordionButton>
-                      </Box>
-                      <AccordionPanel p={0} />
+                              <VStack spacing={4} align="stretch" width="100%">
+                                <HStack justify="space-between" width="100%">
+                                  <Text
+                                    fontSize="16px"
+                                    color="#3E3C46"
+                                    fontWeight="500"
+                                    style={{ fontFamily: 'var(--font-inter)' }}
+                                  >
+                                    Question {index + 1}
+                                  </Text>
+                                  <Box
+                                    px={3}
+                                    py={1}
+                                    borderRadius="8px"
+                                    bg={userAnswers[index] === question.correct_index ? "#ECFDF3" : "#FF505014"}
+                                    border="1px solid"
+                                    borderColor={userAnswers[index] === question.correct_index ? "#ABEFC6" : "#FF625880"}
+                                  >
+                                    <Text
+                                      fontSize="14px"
+                                      color={userAnswers[index] === question.correct_index ? "#009758" : "#FF5050"}
+                                      fontWeight="500"
+                                      style={{ fontFamily: 'var(--font-inter)' }}
+                                    >
+                                      {userAnswers[index] === question.correct_index ? "Correct Answer" : "Wrong Answer"}
+                                    </Text>
+                                  </Box>
+                                </HStack>
+                                {!isExpanded && (
+                                  <>
+                                    <Box height="1px" bg="#0000001A" width="100%" />
+                                    <Text
+                                      fontSize="16px"
+                                      color="#3E3C46"
+                                      style={{ fontFamily: 'var(--font-inter)' }}
+                                      textAlign="left"
+                                      width="100%"
+                                    >
+                                      {question.question}
+                                    </Text>
+                                  </>
+                                )}
+                              </VStack>
+                            </AccordionButton>
+                          </Box>
+                          <Box
+                            bg="white"
+                            borderRadius="0 0 12px 12px"
+                            border="1px solid"
+                            borderColor="#3E3C461F"
+                            borderTop="none"
+                          >
+                            <AccordionPanel pt={4} pb={4} px={5}>
+                              <VStack spacing={6} align="stretch">
+                                <Box
+                                  bg="#98989814"
+                                  borderRadius="12px"
+                                  border="1px solid"
+                                  borderColor="#D9D9D91F"
+                                  p={4}
+                                >
+                                  <Text
+                                    fontSize="16px"
+                                    color="#3E3C46"
+                                    style={{ fontFamily: 'var(--font-inter)' }}
+                                  >
+                                    {question.question}
+                                  </Text>
+                                </Box>
+                                {question.options.map((option, optionIndex) => (
+                                  <Box
+                                    key={optionIndex}
+                                    bg={
+                                      optionIndex === question.correct_index ? "#ECFDF3" :
+                                      userAnswers[index] === optionIndex ? "#FF505014" : 
+                                      "#F8F8F9"
+                                    }
+                                    borderRadius="8px"
+                                    p={4}
+                                    display="flex"
+                                    alignItems="center"
+                                  >
+                                    <Box
+                                      w="20px"
+                                      h="20px"
+                                      borderRadius="full"
+                                      border="2px solid"
+                                      borderColor={
+                                        optionIndex === question.correct_index ? "#009758" :
+                                        userAnswers[index] === optionIndex ? "#FF5050" : 
+                                        "#D9D9D9"
+                                      }
+                                      mr={3}
+                                      position="relative"
+                                      display="flex"
+                                      alignItems="center"
+                                      justifyContent="center"
+                                    >
+                                      {(userAnswers[index] === optionIndex || optionIndex === question.correct_index) && (
+                                        <Box
+                                          w="10px"
+                                          h="10px"
+                                          borderRadius="full"
+                                          bg={optionIndex === question.correct_index ? "#009758" : "#FF5050"}
+                                        />
+                                      )}
+                                    </Box>
+                                    <HStack justify="space-between" width="100%">
+                                      <Text
+                                        fontSize="16px"
+                                        color="#3E3C46"
+                                        style={{ fontFamily: 'var(--font-inter)' }}
+                                      >
+                                        {option}
+                                      </Text>
+                                      {(userAnswers[index] === optionIndex || optionIndex === question.correct_index) && (
+                                        <Text
+                                          fontSize="14px"
+                                          color={optionIndex === question.correct_index ? "#009758" : "#FF5050"}
+                                          fontWeight="500"
+                                          style={{ fontFamily: 'var(--font-inter)' }}
+                                        >
+                                          {optionIndex === question.correct_index ? "Correct Answer" : "Wrong Answer"}
+                                        </Text>
+                                      )}
+                                    </HStack>
+                                  </Box>
+                                ))}
+                              </VStack>
+                            </AccordionPanel>
+                          </Box>
+                        </>
+                      )}
                     </AccordionItem>
                   ))}
                 </Accordion>
