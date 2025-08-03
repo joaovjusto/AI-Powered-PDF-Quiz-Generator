@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
+import { useScrollSync } from 'react-use-scroll-sync'
 import {
   Box,
   Container,
@@ -27,8 +28,33 @@ export default function EditPage() {
 
   const mainContainerRef = useRef<HTMLDivElement>(null)
   const scrollableContainerRef = useRef<HTMLDivElement>(null)
+  const pageContainerRef = useRef<HTMLDivElement>(null)
 
   const isMobile = useBreakpointValue({ base: true, md: false })
+
+  // Sincroniza o scroll da página com o container customizado
+  useEffect(() => {
+    const handleWheel = (event: WheelEvent) => {
+      if (scrollableContainerRef.current) {
+        // Calcula a nova posição do scroll com velocidade aumentada (2x)
+        const newScrollTop = scrollableContainerRef.current.scrollTop + (event.deltaY * 2)
+
+        // Aplica o scroll diretamente para maior responsividade
+        scrollableContainerRef.current.scrollTop = newScrollTop
+
+        // Previne o scroll padrão da página
+        event.preventDefault()
+      }
+    }
+
+    // Adiciona o listener ao documento inteiro
+    document.addEventListener('wheel', handleWheel, { passive: false })
+
+    return () => {
+      // Remove o listener quando o componente for desmontado
+      document.removeEventListener('wheel', handleWheel)
+    }
+  }, [])
 
   useEffect(() => {
     let isMounted = true;
@@ -148,7 +174,15 @@ export default function EditPage() {
   }
 
   return (
-    <Box w="full" display="flex" flexDirection="column" minH="100vh" bg="#F8F8F9">
+    <Box 
+      ref={pageContainerRef}
+      w="full" 
+      h="100vh"
+      display="flex" 
+      flexDirection="column" 
+      bg="#F8F8F9"
+      overflow="hidden"
+    >
       {/* Header */}
       <Box w="full" bg="#F8F8F9">
         {/* Back Button Container - Separado do conteúdo principal */}
@@ -192,7 +226,7 @@ export default function EditPage() {
 
         {/* Title with logo - Em um Container separado */}
         <Container maxW="4xl" px={4}>
-          <Box py={8}>
+          <Box py={4}>
             <Stack
               direction={{ base: 'column', md: 'row' }}
               spacing={{ base: 4, md: 3 }}
@@ -222,12 +256,12 @@ export default function EditPage() {
       </Box>
 
       {/* Main Content */}
-      <Box flex="1" position="relative">
+      <Box flex="1" position="relative" overflow="hidden">
         <Container
           maxW="4xl"
           px={4}
           position="relative"
-          height="calc(100vh - 200px)"
+          height="100%"
           overflow="hidden"
         >
           {/* Scrollable Content */}
@@ -236,6 +270,8 @@ export default function EditPage() {
             overflowY="auto"
             height="100%"
             pb="200px"
+            mt={0}
+            pr="24px"
             css={{
               '&::-webkit-scrollbar': {
                 width: '8px',
@@ -258,11 +294,10 @@ export default function EditPage() {
               scrollbarWidth: 'auto',
               scrollbarColor: '#F5F5F5 #FFFFFF',
               msOverflowStyle: 'none',
-              background: 'linear-gradient(to left, #FFFFFF 16px, transparent 16px)',
               backgroundAttachment: 'local',
             }}
           >
-            <VStack spacing={4} align="stretch" pt={8}>
+            <VStack spacing={4} align="stretch" pt={0}>
               {questions.map((q, index) => (
                 <Question
                   key={index}
