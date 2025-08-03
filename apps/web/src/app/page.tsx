@@ -1,53 +1,18 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, redirect } from 'next/navigation'
 import { useQuizStore } from '@/store/quiz'
 import { FileUpload } from '@/components/FileUpload'
 import { Logo } from '@/components/Logo'
-import { useToast } from '@chakra-ui/react'
 import { getSessionId } from '@/services/sessionService'
 
-export default function Home() {
-  const router = useRouter()
-  const toast = useToast()
-  const { loadCachedQuiz } = useQuizStore()
-  const [isChecking, setIsChecking] = useState(true)
+// Componente de loading que será mostrado enquanto verifica o cache
+function LoadingState() {
+  return null;
+}
 
-  useEffect(() => {
-    const checkCache = async () => {
-      try {
-        const sessionId = getSessionId()
-        if (sessionId) {
-          console.log('Found session ID, checking cache...')
-          const loaded = await loadCachedQuiz()
-          if (loaded) {
-            console.log('Found cached quiz, redirecting to edit')
-            toast({
-              title: 'Previous Session Found',
-              description: 'Restoring your last quiz session.',
-              status: 'success',
-              duration: 3000,
-              isClosable: true,
-              position: 'top-right',
-            })
-            await new Promise(resolve => setTimeout(resolve, 500))
-            router.push('/edit')
-            return
-          }
-        }
-      } catch (error) {
-        console.error('Error checking cache:', error)
-      } finally {
-        setIsChecking(false)
-      }
-    }
-    checkCache()
-  }, [loadCachedQuiz, router, toast])
-
-  if (isChecking) {
-    return null // ou um loading spinner se preferir
-  }
-
+// Componente principal que será mostrado apenas se não houver cache
+function HomeContent() {
   return (
     <div className="flex flex-col items-center justify-center w-full px-4">
       <Logo />
@@ -57,5 +22,51 @@ export default function Home() {
       </p>
       <FileUpload />
     </div>
-  )
+  );
+}
+
+export default function Home() {
+  const router = useRouter()
+  const { loadCachedQuiz } = useQuizStore()
+  const [shouldRender, setShouldRender] = useState(false)
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const checkCache = async () => {
+      try {
+        const sessionId = getSessionId()
+        if (sessionId) {
+          const loaded = await loadCachedQuiz()
+          if (loaded && isMounted) {
+            // Use replace em vez de push para evitar histórico indesejado
+            router.replace('/edit')
+            return;
+          }
+        }
+        // Só seta shouldRender para true se não tiver cache
+        if (isMounted) {
+          setShouldRender(true)
+        }
+      } catch (error) {
+        console.error('Error checking cache:', error)
+        if (isMounted) {
+          setShouldRender(true)
+        }
+      }
+    }
+    
+    checkCache()
+
+    return () => {
+      isMounted = false;
+    }
+  }, [])
+
+  // Renderiza o conteúdo apenas quando shouldRender for true
+  if (!shouldRender) {
+    return <LoadingState />;
+  }
+
+  return <HomeContent />;
 }
