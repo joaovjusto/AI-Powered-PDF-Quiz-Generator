@@ -29,13 +29,15 @@ jobs:
           cd apps/api
           npm install
 
+      - name: Install Vercel CLI
+        run: |
+          npm install -g vercel
+
       - name: Deploy to Vercel
-        if: github.ref == 'refs/heads/main'
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_BACKEND }}
         run: |
-          npm install -g vercel
           cd apps/api
           vercel deploy --prod --token=$VERCEL_TOKEN
