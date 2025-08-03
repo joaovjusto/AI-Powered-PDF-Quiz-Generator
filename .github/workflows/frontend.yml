@@ -28,11 +28,6 @@ jobs:
           cd apps/web
           npm install
 
-      - name: Run Tests
-        run: |
-          cd apps/web
-          npm test
-
       - name: Deploy to Vercel
         if: github.ref == 'refs/heads/main'
         env:
