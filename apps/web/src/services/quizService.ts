@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'
+import { config } from '@/config/env'
 
 interface Question {
   question: string
@@ -33,7 +33,7 @@ export const generateQuiz = async (file: File): Promise<{
   const formData = new FormData()
   formData.append('file', file)
 
-  const response = await fetch(`${API_BASE_URL}/generate-quiz`, {
+  const response = await fetch(`${config.apiUrl}/generate-quiz`, {
     method: 'POST',
     body: formData,
   })
@@ -49,7 +49,7 @@ export const generateQuiz = async (file: File): Promise<{
 export const getQuizCache = async (sessionId: string): Promise<CachedQuizData | null> => {
   console.log('Getting cache for sessionId:', sessionId)
   
-  const response = await fetch(`${API_BASE_URL}/api/cache?session_id=${sessionId}`, {
+  const response = await fetch(`${config.apiUrl}/api/cache?session_id=${sessionId}`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -100,7 +100,7 @@ export const saveQuizCache = async (sessionId: string, data: CachedQuizData): Pr
 
   console.log('Sending transformed payload:', payload)
 
-  const response = await fetch(`${API_BASE_URL}/api/cache`, {
+  const response = await fetch(`${config.apiUrl}/api/cache`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -120,7 +120,7 @@ export const saveQuizCache = async (sessionId: string, data: CachedQuizData): Pr
 export const deleteQuizCache = async (sessionId: string): Promise<void> => {
   console.log('Deleting cache for sessionId:', sessionId)
   
-  const response = await fetch(`${API_BASE_URL}/api/cache?session_id=${sessionId}`, {
+  const response = await fetch(`${config.apiUrl}/api/cache?session_id=${sessionId}`, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',

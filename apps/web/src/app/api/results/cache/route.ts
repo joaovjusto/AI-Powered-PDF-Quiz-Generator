@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { deleteQuizCache } from '@/services/quizService'
+import { config } from '@/config/env'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+const API_URL = config.apiUrl
 
 export async function POST(request: NextRequest) {
   try {

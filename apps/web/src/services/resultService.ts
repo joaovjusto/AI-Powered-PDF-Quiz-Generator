@@ -1,4 +1,5 @@
 import { getSessionId } from './sessionService'
+import { config } from '@/config/env'
 
 interface ResultCache {
   userName: string
@@ -29,7 +30,7 @@ export async function saveResultCache(data: ResultCache): Promise<void> {
   }
 
   try {
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || ''  // Empty string will use relative URLs
+    const API_URL = config.apiUrl
     const response = await fetch(`${API_URL}/api/cache/results/${sessionId}`, {
       method: 'POST',
       headers: {
@@ -54,7 +55,7 @@ export async function getResultCache(): Promise<ResultCache | null> {
   }
 
   try {
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || ''  // Empty string will use relative URLs
+    const API_URL = config.apiUrl
     const response = await fetch(`${API_URL}/api/cache/results/${sessionId}`)
     if (!response.ok) {
       if (response.status === 404) {
@@ -77,7 +78,7 @@ export async function deleteResultCache(): Promise<void> {
   }
 
   try {
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || ''  // Empty string will use relative URLs
+    const API_URL = config.apiUrl
     const response = await fetch(`${API_URL}/api/cache/results/${sessionId}`, {
       method: 'DELETE',
     })
