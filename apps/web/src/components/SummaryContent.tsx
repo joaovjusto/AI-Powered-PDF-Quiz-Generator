@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import {
@@ -22,8 +22,34 @@ import { useQuizStore } from '@/store/quiz'
 
 export function SummaryContent() {
   const router = useRouter()
-  const { metadata, userName, questions, userAnswers } = useQuizStore()
+  const { metadata, userName, questions, userAnswers, loadCachedResults, saveResults } = useQuizStore()
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    async function loadResults() {
+      try {
+        // Se não temos dados, tenta carregar do cache
+        if (!questions.length || !userName || !userAnswers.length) {
+          const hasCache = await loadCachedResults()
+          if (!hasCache) {
+            router.push('/')
+            return
+          }
+        } else {
+          // Se temos dados, salva no cache e limpa o cache de questões
+          await saveResults()
+        }
+      } catch (error) {
+        console.error('Error loading results:', error)
+        router.push('/')
+        return
+      }
+      setIsLoading(false)
+    }
+
+    loadResults()
+  }, [questions.length, userName, userAnswers.length, loadCachedResults, saveResults, router])
   
   const correctAnswers = userAnswers.reduce((acc, answer, index) => {
     return acc + (answer === questions[index].correct_index ? 1 : 0)
@@ -35,6 +61,10 @@ export function SummaryContent() {
 
   const handleBack = () => {
     router.push('/practice')
+  }
+
+  if (isLoading) {
+    return null
   }
 
   return (

@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { getSessionId, setSessionId, removeSessionId } from '@/services/sessionService'
 import { getQuizCache, saveQuizCache, deleteQuizCache } from '@/services/quizService'
+import { saveResultCache, getResultCache, deleteResultCache } from '@/services/resultService'
 
 interface Question {
   question: string
@@ -41,6 +42,9 @@ interface QuizState {
   loadCachedQuiz: () => Promise<boolean>
   cacheCurrentQuiz: () => Promise<void>
   clearCache: () => Promise<void>
+  saveResults: () => Promise<void>
+  loadCachedResults: () => Promise<boolean>
+  clearResultsCache: () => Promise<void>
 }
 
 export const useQuizStore = create<QuizState>()(
@@ -117,6 +121,53 @@ export const useQuizStore = create<QuizState>()(
         }
         removeSessionId()
         set({ questions: [], metadata: null, error: null, isProcessing: false })
+      },
+
+      saveResults: async () => {
+        const { questions, metadata, userName, userAnswers } = get()
+        if (questions.length > 0 && metadata && userName && userAnswers.length > 0) {
+          try {
+            await saveResultCache({
+              questions,
+              metadata,
+              userName,
+              userAnswers
+            })
+          } catch (err) {
+            console.error('Failed to save results:', err)
+            throw err
+          }
+        }
+      },
+
+      loadCachedResults: async () => {
+        try {
+          const cachedData = await getResultCache()
+          if (cachedData) {
+            set({
+              questions: cachedData.questions,
+              metadata: cachedData.metadata,
+              userName: cachedData.userName,
+              userAnswers: cachedData.userAnswers,
+              isProcessing: false,
+              error: null
+            })
+            return true
+          }
+        } catch (err) {
+          console.error('Failed to load cached results:', err)
+        }
+        return false
+      },
+
+      clearResultsCache: async () => {
+        try {
+          await deleteResultCache()
+          set({ questions: [], metadata: null, userName: null, userAnswers: [], error: null, isProcessing: false })
+        } catch (err) {
+          console.error('Failed to clear results cache:', err)
+          throw err
+        }
       },
     }),
     {

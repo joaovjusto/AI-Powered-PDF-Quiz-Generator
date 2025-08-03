@@ -21,7 +21,7 @@ import { useQuizStore } from '@/store/quiz'
 export function PracticeContent() {
   const router = useRouter()
   const toast = useToast()
-  const { questions = [], metadata, setUserName, setUserAnswers } = useQuizStore()
+  const { questions = [], metadata, setUserName, setUserAnswers, saveResults } = useQuizStore()
   const [answers, setAnswers] = useState<number[]>([])
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [selectedAnswer, setSelectedAnswer] = useState('')
@@ -44,7 +44,7 @@ export function PracticeContent() {
     router.push('/edit')
   }
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (showNameInput) {
       if (!userName.trim()) {
         toast({
@@ -56,6 +56,7 @@ export function PracticeContent() {
         return;
       }
       setUserName(userName.trim());
+      await saveResults();
       router.push('/summary');
       return;
     }

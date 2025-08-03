@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes.quiz import router as quiz_router
 from app.routes.cache import router as cache_router
+from app.routes.results import router as results_router
 
 app = FastAPI()
 
@@ -17,3 +18,4 @@ app.add_middleware(
 # Include routers
 app.include_router(quiz_router)  # This will use the prefix defined in the router
 app.include_router(cache_router)  # This will use the prefix defined in the router
+app.include_router(results_router)  # This will use the prefix defined in the router
