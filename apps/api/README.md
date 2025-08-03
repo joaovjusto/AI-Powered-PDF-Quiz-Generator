@@ -1,21 +1,12 @@
-# Quiz Generator Backend
+# Quiz Explanation API
 
-FastAPI backend application for the AI-powered PDF Quiz Generator.
+This API provides streaming explanations for quiz answers using OpenAI's GPT-3.5 model.
 
-## Tech Stack
+## Setup
 
-- FastAPI
-- PyMuPDF (fitz)
-- OpenAI API
-- Python-dotenv
-- CORS middleware
-
-## Getting Started
-
-1. Create and activate virtual environment:
+1. Create a `.env` file in the `apps/api` directory:
 ```bash
-python -m venv venv
-source venv/bin/activate  # On Windows use: venv\Scripts\activate
+OPENAI_API_KEY=your_api_key_here
 ```
 
 2. Install dependencies:
@@ -23,124 +14,28 @@ source venv/bin/activate  # On Windows use: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-3. Set up environment variables:
+## Running the Server
 
-Create a `.env` file:
-```env
-OPENAI_API_KEY=your_openai_api_key
-```
+Start the server using one of these methods:
 
-4. Start the development server:
+1. Using the start script:
 ```bash
-uvicorn main:app --reload --host 0.0.0.0
+./start.sh
 ```
 
-## Project Structure
-
-```
-.
-├── src/
-│   ├── main.py              # FastAPI application
-│   ├── routes/
-│   │   └── quiz.py         # Quiz generation endpoints
-│   ├── services/
-│   │   ├── openai.py       # OpenAI integration
-│   │   └── pdf.py          # PDF processing
-│   └── utils/
-│       └── text.py         # Text processing utilities
-└── requirements.txt
+2. Or manually with uvicorn:
+```bash
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 ## API Endpoints
 
-### POST /generate-quiz
+- `GET /health`: Health check endpoint
+- `POST /api/explain`: Get streaming explanation for quiz answers
 
-Generates quiz questions from a PDF file.
+## Troubleshooting
 
-**Request:**
-- Method: POST
-- Content-Type: multipart/form-data
-- Body:
-  - file: PDF file (max 10MB)
-  - num_questions: Optional[int] = 5
-
-**Response:**
-```json
-{
-  "status": "success",
-  "questions": [
-    {
-      "question": "string",
-      "options": ["string"],
-      "correct_index": 0
-    }
-  ],
-  "metadata": {
-    "original_text_length": 0,
-    "was_summarized": false,
-    "num_questions": 0,
-    "pdf_info": {
-      "total_pages": 0,
-      "pages_read": 0,
-      "was_truncated": false
-    }
-  }
-}
-```
-
-## Features
-
-### PDF Processing
-- Text extraction using PyMuPDF
-- Large PDF handling (>10 pages)
-- Text summarization for long documents
-
-### Quiz Generation
-- OpenAI GPT model integration
-- Multiple choice question generation
-- Answer validation
-
-### Error Handling
-- File size validation
-- PDF format validation
-- API error handling
-
-## Environment Variables
-
-| Variable | Description | Required |
-|----------|-------------|----------|
-| OPENAI_API_KEY | OpenAI API key | Yes |
-
-## Development Guidelines
-
-1. **Code Organization**
-   - Keep routes in routes/
-   - Business logic in services/
-   - Utilities in utils/
-
-2. **Error Handling**
-   - Use FastAPI HTTPException
-   - Provide meaningful error messages
-   - Handle edge cases
-
-3. **API Design**
-   - Follow REST principles
-   - Use appropriate HTTP methods
-   - Implement proper validation
-
-4. **Performance**
-   - Optimize PDF processing
-   - Handle large files efficiently
-   - Implement caching when needed
-
-## Dependencies
-
-Main dependencies from requirements.txt:
-```
-fastapi
-python-multipart
-uvicorn
-PyMuPDF
-openai
-python-dotenv
-```
+1. If you see a 404 error, make sure the API server is running
+2. Check the API logs for detailed error messages
+3. Ensure your OpenAI API key is correctly set in the `.env` file
+4. The server must be running on port 8000

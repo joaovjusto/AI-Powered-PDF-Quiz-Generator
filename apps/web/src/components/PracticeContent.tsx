@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
+import { StreamingExplanation } from './StreamingExplanation'
 import {
   Box,
   Container,
@@ -31,6 +32,7 @@ export function PracticeContent() {
   const [isCorrect, setIsCorrect] = useState(false)
   const [userName, setUserNameLocal] = useState('')
   const [showNameInput, setShowNameInput] = useState(false)
+  const [hasAnswered, setHasAnswered] = useState(false)
 
   useEffect(() => {
     if (!questions || questions.length === 0) {
@@ -61,35 +63,61 @@ export function PracticeContent() {
       return;
     }
 
-    if (!selectedAnswer) return;
+    if (!hasAnswered) {
+      if (!selectedAnswer) return;
 
-    const question = questions[currentQuestion];
-    const selectedIdx = parseInt(selectedAnswer);
-    const isAnswerCorrect = selectedIdx === question.correct_index;
-    setIsCorrect(isAnswerCorrect);
-    setShowFeedback(true);
+      const question = questions[currentQuestion];
+      const selectedIdx = parseInt(selectedAnswer);
+      const isAnswerCorrect = selectedIdx === question.correct_index;
+      setIsCorrect(isAnswerCorrect);
+      setShowFeedback(true);
+      setHasAnswered(true);
 
-    setTimeout(() => {
       const newAnswers = [...answers];
       newAnswers[currentQuestion] = selectedIdx;
       setAnswers(newAnswers);
-      
-      if (currentQuestion < questions.length - 1) {
-        setCurrentQuestion(prev => prev + 1);
-        setSelectedAnswer('');
-        setShowFeedback(false);
-      } else {
-        setUserAnswers(newAnswers);
-        setShowNameInput(true);
-        setShowFeedback(false);
+
+      // If correct, move to next question automatically
+      if (isAnswerCorrect) {
+        setTimeout(() => {
+          if (currentQuestion < questions.length - 1) {
+            moveToNextQuestion();
+          } else {
+            finishQuiz(newAnswers);
+          }
+        }, 1500);
       }
-    }, 1500);
+      // If incorrect, wait for user to click next again after reading explanation
+    } else {
+      // User has already answered and clicked next again
+      if (currentQuestion < questions.length - 1) {
+        moveToNextQuestion();
+      } else {
+        finishQuiz(answers);
+      }
+    }
+  }
+
+  const moveToNextQuestion = () => {
+    setCurrentQuestion(prev => prev + 1);
+    setSelectedAnswer('');
+    setShowFeedback(false);
+    setHasAnswered(false);
+  }
+
+  const finishQuiz = (finalAnswers: number[]) => {
+    setUserAnswers(finalAnswers);
+    setShowNameInput(true);
+    setShowFeedback(false);
+    setHasAnswered(false);
   }
 
   const handlePrevious = () => {
     if (currentQuestion > 0) {
       setCurrentQuestion(prev => prev - 1)
       setSelectedAnswer('')
+      setShowFeedback(false)
+      setHasAnswered(false)
     }
   }
 
@@ -253,7 +281,11 @@ export function PracticeContent() {
                     />
 
                     {/* Options */}
-                    <RadioGroup value={selectedAnswer} onChange={setSelectedAnswer}>
+                    <RadioGroup 
+                      value={selectedAnswer} 
+                      onChange={setSelectedAnswer}
+                      isDisabled={hasAnswered}
+                    >
                       <VStack spacing={4} align="stretch">
                         {question.options.map((option, index) => (
                           <Box
@@ -291,40 +323,46 @@ export function PracticeContent() {
               </VStack>
             </Box>
 
-            {/* Feedback Chip */}
+            {/* Feedback and Explanation */}
             {showFeedback && (
-              <Box mt={{ base: 2, md: 4 }}>
-                <Box 
-                  bg={isCorrect ? "#ECFDF3" : "#FF505014"}
-                  border="1px solid"
-                  borderColor={isCorrect ? "#009758" : "#FF5050"}
-                  borderRadius="16px"
-                  px={{ base: "12px", md: "20px" }}
-                  py={{ base: "8px", md: "16px" }}
-                  width="100%"
-                  display="flex"
-                  justifyContent="flex-start"
-                  alignItems="center"
-                >
-                  {isCorrect && (
-                    <Image
-                      src="/correctanswer.svg"
-                      alt="Correct Answer Icon"
-                      width={26}
-                      height={26}
-                      style={{ marginRight: '8px' }}
-                    />
-                  )}
-                  <Text
-                    fontSize={{ base: "14px", md: "26px" }}
-                    fontWeight="600"
-                    color={isCorrect ? "#009758" : "#FF5050"}
-                    style={{ fontFamily: 'var(--font-inter)' }}
-                  >
-                    {isCorrect ? "Correct!" : "Wrong!"}
-                  </Text>
-                </Box>
-              </Box>
+              <>
+                {isCorrect ? (
+                  <Box mt={{ base: 2, md: 4 }}>
+                    <Box 
+                      bg="#ECFDF3"
+                      border="1px solid"
+                      borderColor="#009758"
+                      borderRadius="16px"
+                      px={{ base: "12px", md: "20px" }}
+                      py={{ base: "8px", md: "16px" }}
+                      width="100%"
+                      display="flex"
+                      justifyContent="flex-start"
+                      alignItems="center"
+                    >
+                      <Image
+                        src="/correctanswer.svg"
+                        alt="Correct Answer Icon"
+                        width={26}
+                        height={26}
+                        style={{ marginRight: '8px' }}
+                      />
+                      <Text
+                        fontSize={{ base: "14px", md: "26px" }}
+                        fontWeight="600"
+                        color="#009758"
+                        style={{ fontFamily: 'var(--font-inter)' }}
+                      >
+                        Correct!
+                      </Text>
+                    </Box>
+                  </Box>
+                ) : (
+                  <StreamingExplanation
+                    correctAnswer={question.options[question.correct_index]}
+                  />
+                )}
+              </>
             )}
 
             {/* Fade Out Effect */}
@@ -385,7 +423,7 @@ export function PracticeContent() {
                   style={{ fontFamily: 'var(--font-inter)' }}
                   size="lg"
                 >
-                  {showNameInput ? 'Save & Continue' : 'Next'}
+                  {showNameInput ? 'Save & Continue' : hasAnswered ? 'Next Question' : 'Check Answer'}
                   <Icon as={ChevronRightIcon} boxSize={{ base: 4, md: 5 }} ml={2} />
                 </Button>
               </HStack>
