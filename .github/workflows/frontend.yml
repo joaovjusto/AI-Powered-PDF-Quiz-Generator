@@ -31,22 +31,20 @@ jobs:
 
       - name: Debug Environment Variables
         run: |
-          echo "VERCEL_TOKEN=$VERCEL_TOKEN"
-          echo "VERCEL_ORG_ID=$VERCEL_ORG_ID"
-          echo "VERCEL_PROJECT_ID=$VERCEL_PROJECT_ID_FRONTEND"
-        # Adicione uma verificação de falha se as variáveis não estiverem definidas
+          echo "VERCEL_TOKEN=${{ secrets.VERCEL_TOKEN }}"
+          echo "VERCEL_ORG_ID=${{ secrets.VERCEL_ORG_ID }}"
+          echo "VERCEL_PROJECT_ID=${{ secrets.VERCEL_PROJECT_ID_FRONTEND }}"
         shell: bash
-        continue-on-error: false
 
       - name: Install Vercel CLI
         run: |
           npm install -g vercel
 
       - name: Deploy to Vercel
+        run: |
+          cd apps/web
+          vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }}
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_FRONTEND }}
-        run: |
-          cd apps/web
-          vercel deploy --prod --token=$VERCEL_TOKEN
