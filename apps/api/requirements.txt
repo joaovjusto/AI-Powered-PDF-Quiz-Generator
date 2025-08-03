@@ -6,3 +6,4 @@ sse-starlette==1.6.5
 pydantic==2.7.0
 python-multipart
 PyPDF2
+pymupdf==1.26.3
