@@ -20,7 +20,7 @@ jobs:
               run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
 
             - name: Build Project Artifacts
-              run: vercel build --token=${{ secrets.VERCEL_TOKEN }} --org=${{ secrets.VERCEL_ORG_ID }} --project=${{ secrets.VERCEL_PROJECT_ID }}
+              run: vercel build --token=${{ secrets.VERCEL_TOKEN }} --org=${{ secrets.VERCEL_ORG_ID }} --project=${{ secrets.VERCEL_PROJECT_ID_FRONTEND
 
             - name: Deploy Project Artifacts
-              run: vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} --org=${{ secrets.VERCEL_ORG_ID }} --project=${{ secrets.VERCEL_PROJECT_ID }}
+              run: vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} --org=${{ secrets.VERCEL_ORG_ID }} --project=${{ secrets.VERCEL_PROJECT_ID_FRONTEND
