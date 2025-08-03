@@ -1,3 +1,5 @@
+import { API_CONFIG } from '@/config/api'
+
 interface Question {
   question: string;
   options: string[];
@@ -19,7 +21,7 @@ export async function generateQuiz(file: File): Promise<QuizResponse> {
   formData.append('file', file);
 
   try {
-    const response = await fetch('http://localhost:8000/generate-quiz', {
+    const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.generateQuiz}`, {
       method: 'POST',
       body: formData,
     });

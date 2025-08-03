@@ -1,5 +1,6 @@
 import { useRouter } from 'next/navigation'
 import { useQuizStore } from '@/store/quiz'
+import { API_CONFIG } from '@/config/api'
 
 export function useQuiz() {
   const router = useRouter()
@@ -13,7 +14,7 @@ export function useQuiz() {
       const formData = new FormData()
       formData.append('file', file)
 
-      const response = await fetch('http://localhost:8000/generate-quiz', {
+      const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.generateQuiz}`, {
         method: 'POST',
         body: formData,
       })
